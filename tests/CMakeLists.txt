@@ -11,5 +11,6 @@ macro(add_traccc_test TESTNAME FILES PLUGIN_LIBRARY)
     ENVIRONMENT TRACCC_TEST_DATA_DIR=${PROJECT_SOURCE_DIR}/data/)
 endmacro()
 
-add_subdirectory(io)
 add_subdirectory(algorithms)
+add_subdirectory(edm)
+add_subdirectory(io)

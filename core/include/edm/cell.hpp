@@ -21,10 +21,10 @@ namespace traccc {
     /// maximum two channel identifiers
     /// and one activiation value, such as a time stamp
     struct cell {
-        channel_id channel0 = 0;
-        channel_id channel1 = 0;
-        scalar activation = 0.;
-        scalar time = 0.;
+        channel_id channel0 = std::numeric_limits<channel_id>::max();
+        channel_id channel1 = std::numeric_limits<channel_id>::max();
+        scalar activation = std::numeric_limits<scalar>::quiet_NaN();
+        scalar time = std::numeric_limits<scalar>::quiet_NaN();
     };
 
     /// A cell collection: 
@@ -38,7 +38,7 @@ namespace traccc {
         geometry_id module = 0;
         transform3 placement = transform3{};
 
-        std::vector<cell> items;
+        std::vector<cell> items = {};
         std::array<channel_id,2> range0 = {std::numeric_limits<channel_id>::max(), 0};
         std::array<channel_id,2> range1 = {std::numeric_limits<channel_id>::max(), 0};         
     };

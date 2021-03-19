@@ -18,7 +18,7 @@ namespace traccc {
     ///
     /// a list of cells that make up the cluster
     struct cluster {
-        std::vector<cell> cells;
+        std::vector<cell> cells = {};
     };
 
     using position_estimation = std::function<vector2(channel_id,channel_id)>;
@@ -33,7 +33,7 @@ namespace traccc {
         geometry_id module = 0;
         transform3 placement = transform3{};
 
-        std::vector<cluster> items;
+        std::vector<cluster> items = {};
         
         position_estimation position_from_cell 
             = [](channel_id ch0,channel_id ch1) -> vector2 

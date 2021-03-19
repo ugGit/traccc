@@ -9,7 +9,7 @@
 
 #include "edm/cell.hpp"
 #include "edm/cluster.hpp"
-#include "detail/sparse_ccl.hpp"
+#include "tools/sparse_ccl.hpp"
 
 namespace traccc {
 

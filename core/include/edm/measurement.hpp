@@ -23,7 +23,7 @@ namespace traccc {
 
         event_id event = 0;
         geometry_id module = 0;
-        std::vector<measurement> items;
+        std::vector<measurement> items = {};
 
         transform3 placement = transform3{};
         
