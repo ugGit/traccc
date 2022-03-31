@@ -6,49 +6,12 @@
  */
 #include <iostream>
 
-#include <vector>
-#include <algorithm>
-#include <execution>
-
-#include <stdio.h>
-
-#include <chrono>
-
-
-using std::cout;
-
-
-const int DSIZE = 2*32*1048576;
+#include "traccc/stdpar/clusterization/test.hpp"
 
 int main(){
-  cout << "Start Vector Add Program\n";
-  cout << "-----------\n";
+  std::cout << "Start STDPAR Example\n";
 
-  // Try to access elements first with vectors,
-  // and in a second round by random access in arrays
+  traccc::stdpar::execute();
 
-  // Initialize vectors
-  std::vector<float> a(DSIZE);
-  std::vector<float> b(DSIZE);
-  std::vector<float> c(DSIZE);
-  for (int i = 0; i < DSIZE; i++){
-    a.at(i) = rand()/(float)RAND_MAX;
-    b.at(i) = rand()/(float)RAND_MAX;
-  }
-
-  // start crono
-  const auto t1 = std::chrono::high_resolution_clock::now();
-
-  // execute 
-  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), c.begin(), [](float x, float y) -> float {return x+y;});
-  
-  // stop crono
-  const auto t2 = std::chrono::high_resolution_clock::now();
-  const std::chrono::duration<double, std::milli> ms = t2 - t1;
-  cout << "Execution time [ms]: " << ms.count() << "\n";
-  cout << "-----------\n";
-
-  cout << a.at(0) << "\n";
-  cout << b.at(0) << "\n";
-  cout << c.at(0) << "\n";
+  std::cout << "End STDPAR Example\n";
 }
