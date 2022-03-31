@@ -7,10 +7,9 @@ CXX=$( which g++ )
 # Parse arguments
 args=$*
 
-# Check parameter existences which determin if nvc++ is used as compiler
+# Check parameter existences which determines if nvc++ is used as compiler
 is_any_in_args(){
-  args="$1"
-  for arg in "${@:2}"
+  for arg in "$@"
   do
     # check if current argument is present in string of arguments
     echo "$args" | grep -q "$arg"
@@ -22,7 +21,7 @@ is_any_in_args(){
 }
 
 # Prepare compiler args for nvc++ or g++
-if is_any_in_args "$args" "traccc_stdpar_par_example.dir" ; then
+if is_any_in_args "traccc_stdpar_par_example.dir" "traccc_stdpar.dir"; then
     echo ""; echo "******************************"
     echo "Use NVC++ COMPILER"
     echo "******************************"; echo ""
