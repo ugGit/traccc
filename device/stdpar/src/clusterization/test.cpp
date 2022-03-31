@@ -54,7 +54,6 @@ void execute(){
   cout << a.at(0) << "\n";
   cout << b.at(0) << "\n";
   cout << c.at(0) << "\n";
-  
 }
 
 
