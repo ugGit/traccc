@@ -11,6 +11,10 @@
 #include "traccc/edm/spacepoint.hpp"
 #include "traccc/utils/algorithm.hpp"
 
+// Time measurements (temporary) // TODO: remove again (20220401)
+#include <chrono>
+#include <iostream>
+
 namespace traccc {
 
 /// Connected component labeling.
