@@ -82,7 +82,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
         auto spacepoints_per_event = sf(measurements_per_event);
 
-<<<<<<< HEAD
         /*-----------------------
           Seeding algorithm
           -----------------------*/
@@ -96,6 +95,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         auto params = tp(spacepoints_per_event, seeds);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         std::cout << "----------\n";
         std::cout << "Data of spacepoint for validation:\n";
         std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
@@ -107,6 +107,8 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 =======
 >>>>>>> Get TBB errors, test.cpp is callable
 >>>>>>> Get TBB errors, test.cpp is callable
+=======
+>>>>>>> run local to global transofmration parallel (not yet par_unseq)
         /*----------------------------
           Statistics
           ----------------------------*/
@@ -115,6 +117,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         n_cells += cells_per_event.total_size();
         n_measurements += measurements_per_event.total_size();
         n_spacepoints += spacepoints_per_event.total_size();
+<<<<<<< HEAD
 <<<<<<< HEAD
         n_seeds += seeds.size();
 
@@ -133,6 +136,10 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         }
 =======
 >>>>>>> Get TBB errors, test.cpp is callable
+=======
+
+        break;
+>>>>>>> run local to global transofmration parallel (not yet par_unseq)
     }
 
     std::cout << "==> Statistics ... " << std::endl;

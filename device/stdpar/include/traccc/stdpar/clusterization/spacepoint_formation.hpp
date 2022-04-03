@@ -68,11 +68,22 @@ struct spacepoint_formation
         measurement *measurements_array = new measurement[number_of_measurements];
         spacepoint *spacepoints_array = new spacepoint[number_of_measurements];
 
+<<<<<<< HEAD
+=======
+
+        spacepoints.reserve(measurements.size());
+        measurement *measurements_array = new measurement[measurements.size()];
+        spacepoint *spacepoints_array = new spacepoint[measurements.size()];
+
+        int number_of_measurements = measurements.size();
+
+>>>>>>> run local to global transofmration parallel (not yet par_unseq)
         // populate the array by copying the values
         for (int i = 0; i < number_of_measurements; i++){
             measurements_array[i] = measurements.at(i);
         }
 
+<<<<<<< HEAD
         std::for_each_n(std::execution::par_unseq, counting_iterator(0), number_of_measurements, 
             [=](unsigned int i){
                 const auto m = measurements_array[i];
@@ -94,6 +105,23 @@ struct spacepoint_formation
         // TODO: test when the next steps are included before keeping this
         // delete[] measurements_array;
         // delete[] spacepoints_array;
+=======
+        // start crono
+        const auto t1 = std::chrono::high_resolution_clock::now();
+
+        traccc::stdpar::local_to_global(module, measurements_array, spacepoints_array, number_of_measurements);
+
+        // stop crono
+        const auto t2 = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<double, std::milli> ms = t2 - t1;
+        std::cout << "Execution time [ms]: " << ms.count() << "\n";
+        std::cout << "-----------\n";
+
+        // store the values in the output
+        for (int i = 0; i < number_of_measurements; i++){
+            spacepoints.push_back(spacepoints_array[i]);
+        }
+>>>>>>> run local to global transofmration parallel (not yet par_unseq)
     }
 
     private:
