@@ -101,7 +101,6 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
     std::cout << "- created " << n_spacepoints << " space points. "
               << std::endl;      
 
-
     return 0;   
 }
 

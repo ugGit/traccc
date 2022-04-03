@@ -82,6 +82,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
         auto spacepoints_per_event = sf(measurements_per_event);
 
+<<<<<<< HEAD
         /*-----------------------
           Seeding algorithm
           -----------------------*/
@@ -94,6 +95,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
         auto params = tp(spacepoints_per_event, seeds);
 
+<<<<<<< HEAD
         std::cout << "----------\n";
         std::cout << "Data of spacepoint for validation:\n";
         std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
@@ -101,6 +103,10 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         std::cout << "z: " << spacepoints_per_event[0].items[0].global[2] << std::endl;
         std::cout << "----------\n";
         
+=======
+=======
+>>>>>>> Get TBB errors, test.cpp is callable
+>>>>>>> Get TBB errors, test.cpp is callable
         /*----------------------------
           Statistics
           ----------------------------*/
@@ -109,6 +115,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         n_cells += cells_per_event.total_size();
         n_measurements += measurements_per_event.total_size();
         n_spacepoints += spacepoints_per_event.total_size();
+<<<<<<< HEAD
         n_seeds += seeds.size();
 
         /*------------
@@ -124,6 +131,8 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
             sd_performance_writer.write("CPU", seeds, spacepoints_per_event,
                                         evt_map);
         }
+=======
+>>>>>>> Get TBB errors, test.cpp is callable
     }
 
     std::cout << "==> Statistics ... " << std::endl;
@@ -161,9 +170,15 @@ int main(int argc, char* argv[]){
     full_tracking_input_cfg.read(vm);
 
     std::cout << "Running " << argv[0] << " "
+<<<<<<< HEAD
               << full_tracking_input_cfg.detector_file << " "
               << full_tracking_input_cfg.cell_directory << " "
               << common_opts.events << std::endl;
+=======
+                << full_tracking_input_cfg.detector_file << " "
+                << full_tracking_input_cfg.cell_directory << " "
+                << full_tracking_input_cfg.events << std::endl;
+>>>>>>> Get TBB errors, test.cpp is callable
 
     return seq_run(full_tracking_input_cfg, common_opts);
 }

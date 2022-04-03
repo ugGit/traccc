@@ -77,6 +77,7 @@ if is_any_in_args "${NVCPP_DIRS[@]}"; then
     X=$( echo $X | perl -ne '@X=split(" ",$_); @Y=map(/libcudart_static.a/ ? () : $_, @X); print "@Y"' )
     X=$( echo $X | sed s/-lcudart_static// )
 
+
     CXX=${NVCPP}
     CXXARGS="$LOCALRC $STDPAROPTS $X"
     
