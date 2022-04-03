@@ -46,7 +46,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
     uint64_t n_modules = 0;
     uint64_t n_measurements = 0;
     uint64_t n_spacepoints = 0;
-    uint64_t n_seeds = 0;
 
     // Memory resource used by the EDM.
     vecmem::host_memory_resource host_mr;
@@ -120,8 +119,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         }
     }
 
-    sd_performance_writer.finalize();
-
     std::cout << "==> Statistics ... " << std::endl;
     std::cout << "- read    " << n_cells << " cells from " << n_modules
               << " modules" << std::endl;
@@ -129,14 +126,15 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
               << std::endl;
     std::cout << "- created " << n_spacepoints << " space points. "
               << std::endl;
-    std::cout << "- created " << n_seeds << " seeds" << std::endl;
 
     return 0;
 }
 
-// The main routine
-//
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]){
+    std::cout << "Start STDPAR Example\n";
+
+    // traccc::stdpar::execute();
+
     // Set up the program options
     po::options_description desc("Allowed options");
 
