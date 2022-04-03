@@ -44,20 +44,17 @@ struct spacepoint_formation : public algorithm<host_spacepoint_container(
                                           &m_mr.get());
 
         // Run the algorithm
-        for (std::size_t i = 0; i < measurements_per_event.size(); ++i) {
-            const auto& module = measurements_per_event.at(i).header;
-            const auto& measurements_per_module =
-                measurements_per_event.at(i).items;
-            auto& spacepoints_per_module = spacepoints_per_event.at(i).items;
-            spacepoints_per_module.reserve(measurements_per_module.size());
+        spacepoints.reserve(measurements.size());
+        
+        // start crono
+        const auto t1 = std::chrono::high_resolution_clock::now();
 
-            for (const auto& m : measurements_per_module) {
-
-                point3 local_3d = {m.local[0], m.local[1], 0.};
-                point3 global = module.placement.point_to_global(local_3d);
-                spacepoint s({global, m});
-
-                spacepoints_per_module.push_back(std::move(s));
+        for (const auto& m : measurements) {
+            point3 local_3d = {m.local[0], m.local[1], 0.};
+            point3 global = module.placement.point_to_global(local_3d);
+            variance3 variance = {0, 0, 0};
+            spacepoint s({global, variance, m});
+            spacepoints_per_module.push_back(std::move(s));
             }
         }
 

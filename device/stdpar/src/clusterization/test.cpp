@@ -15,11 +15,34 @@
 
 
 #include "traccc/stdpar/clusterization/test.hpp"
+#include "traccc/stdpar/utils/CountingIterator.h"
 
 namespace traccc {
 namespace stdpar {
 
 using std::cout;
+
+void local_to_global(const cell_module& module, 
+                     measurement *measurements_array, 
+                     spacepoint *spacepoints_array, 
+                     const int number_of_measurements){
+    std::for_each_n(std::execution::par, counting_iterator(0), number_of_measurements, 
+        [=](unsigned int i){
+            const auto m = measurements_array[i];
+            
+            point3 local_3d = {m.local[0], m.local[1], 0.};
+            
+            point3 global = module.placement.point_to_global(local_3d);
+            variance3 variance = {0, 0, 0};
+            spacepoint s({global, variance, m});
+            
+            // @todo add variance estimation
+            // spacepoints_array[i] = s;
+            spacepoints_array[i] = {global, variance, m};
+        }
+    ); 
+}
+
 void execute(){
   const int DSIZE = 32; // 2*32*1048576;
   cout << "Start Vector Add Program\n";
