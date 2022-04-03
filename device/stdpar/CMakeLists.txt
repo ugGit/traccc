@@ -4,18 +4,28 @@
 #
 # Mozilla Public License Version 2.0
 
+cmake_minimum_required(VERSION 3.18)
+
 # Project include(s).
 include( traccc-compiler-options-cpp )
 
+# Set library name
+set( LIB "traccc_stdpar" )
+
 # Set up the build of the traccc::stdpar library.
-traccc_add_library( traccc_stdpar stdpar TYPE SHARED
+traccc_add_library( ${LIB} stdpar TYPE SHARED
+  # utils
+  "include/traccc/stdpar/utils/CountingIterator.h"
   # header files
   "include/traccc/stdpar/clusterization/test.hpp"
+  "include/traccc/stdpar/clusterization/spacepoint_formation.hpp"
+  "include/traccc/stdpar/clusterization/clusterization_algorithm.hpp"
   # implementation files
-  "src/clusterization/test.cpp" )
-target_link_libraries( traccc_stdpar
+  "src/clusterization/test.cpp"
+)
+target_link_libraries( ${LIB}
   PUBLIC traccc::core)
 
 set (STDPAR_TARGET "gpu")
-target_compile_options(traccc_stdpar PRIVATE -stdpar=${STDPAR_TARGET})
-target_link_options(traccc_stdpar PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+target_link_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})

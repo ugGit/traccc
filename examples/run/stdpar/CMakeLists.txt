@@ -4,16 +4,14 @@
 #
 # Mozilla Public License Version 2.0
 
-cmake_minimum_required(VERSION 3.18)
-
 # Project include(s).
 include( traccc-compiler-options-cpp )
 
 traccc_add_executable( stdpar_par_example "stdpar_par_example.cpp"
-   LINK_LIBRARIES traccc::stdpar)
+   LINK_LIBRARIES vecmem::core traccc::core traccc::io 
+   traccc::options traccc::stdpar Boost::program_options)
 
-# Add stdpar specific compilation options.
-set( exe_name "traccc_stdpar_par_example" )
+set (EXE_NAME "traccc_stdpar_par_example")
 set (STDPAR_TARGET "gpu")
-target_compile_options(${exe_name} PRIVATE -stdpar=${STDPAR_TARGET})
-target_link_options(${exe_name} PRIVATE -stdpar=${STDPAR_TARGET})
+#target_compile_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
+#target_link_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})

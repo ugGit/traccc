@@ -5,14 +5,14 @@
  * Mozilla Public License Version 2.0
  */
 #include <iostream>
-
-#include <vector>
 #include <algorithm>
 #include <execution>
+#include <chrono>
+
+#include <vector>
 
 #include <stdio.h>
 
-#include <chrono>
 
 #include "traccc/stdpar/clusterization/test.hpp"
 
@@ -21,7 +21,7 @@ namespace stdpar {
 
 using std::cout;
 void execute(){
-  const int DSIZE = 2*32*1048576;
+  const int DSIZE = 32; // 2*32*1048576;
   cout << "Start Vector Add Program\n";
   cout << "-----------\n";
 
@@ -41,17 +41,19 @@ void execute(){
   const auto t1 = std::chrono::high_resolution_clock::now();
 
   // execute 
-  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), c.begin(), [](float x, float y) -> float {return x+y;});
+  std::transform(std::execution::par, a.begin(), a.end(), b.begin(), c.begin(), [](float x, float y) -> float {return x+y;});
   
   // stop crono
   const auto t2 = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double, std::milli> ms = t2 - t1;
+  
   cout << "Execution time [ms]: " << ms.count() << "\n";
   cout << "-----------\n";
 
   cout << a.at(0) << "\n";
   cout << b.at(0) << "\n";
   cout << c.at(0) << "\n";
+  
 }
 
 
