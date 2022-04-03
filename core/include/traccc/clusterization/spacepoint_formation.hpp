@@ -62,12 +62,11 @@ struct spacepoint_formation
                     const host_measurement_collection& measurements,
                     output_type& spacepoints) const {
         // Run the algorithm
-
+        spacepoints.reserve(measurements.size());
+        
         // start crono
         const auto t1 = std::chrono::high_resolution_clock::now();
 
-        spacepoints.reserve(measurements.size());
-        
         for (const auto& m : measurements) {
             point3 local_3d = {m.local[0], m.local[1], 0.};
             point3 global = module.placement.point_to_global(local_3d);
@@ -81,8 +80,8 @@ struct spacepoint_formation
         // stop crono
         const auto t2 = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<double, std::milli> ms = t2 - t1;
-        // std::cout << "Execution time [ms]: " << ms.count() << "\n";
-        // std::cout << "-----------\n";
+        std::cout << "Execution time [ms]: " << ms.count() << "\n";
+        std::cout << "-----------\n";
     }
 
     private:
