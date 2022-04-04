@@ -23,12 +23,20 @@
 #include <exception>
 #include <iostream>
 
+// Time measurements (temporary) // TODO: remove again (20220401)
+#include <chrono>
+#include <iostream>
+#include <stdio.h>
+
 namespace po = boost::program_options;
 
+
 int par_run(const traccc::full_tracking_input_config& i_cfg) {
+    // start crono
+    const auto t1 = std::chrono::high_resolution_clock::now();
 
     // Read the surface transforms
-    auto surface_transforms = traccc::read_geometry(i_cfg.detector_file);
+    auto surface_transforms = traccc::read_geometry2(i_cfg.detector_file);
 
     // Output stats
     uint64_t n_cells = 0;
@@ -37,7 +45,9 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
     uint64_t n_spacepoints = 0;
 
     // Memory resource used by the EDM.
-    vecmem::host_memory_resource host_mr;
+    vecmem::host_memory_resource host_mr;  
+
+    // check if clusterization algo must be called created on heap or not
 
     traccc::stdpar::clusterization_algorithm *ca = new traccc::stdpar::clusterization_algorithm(host_mr);
 
@@ -70,18 +80,24 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
         break;
     }
 
+    // stop crono
+    const auto t2 = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double, std::milli> ms = t2 - t1;
+
     std::cout << "==> Statistics ... " << std::endl;
+    std::cout << "Execution time [ms]: " << ms.count() << "\n";
+    std::cout << "----------    -\n";
     std::cout << "- read    " << n_cells << " cells from " << n_modules
               << " modules" << std::endl;
     std::cout << "- created " << n_measurements << " measurements. "
               << std::endl;
     std::cout << "- created " << n_spacepoints << " space points. "
-              << std::endl;
+              << std::endl;      
 
-    return 0;
+    return 0;   
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]){    
     // Set up the program options
     po::options_description desc("Allowed options");
 

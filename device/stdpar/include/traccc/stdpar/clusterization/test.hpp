@@ -7,16 +7,9 @@
 
 #pragma once
 
-#include "traccc/edm/measurement.hpp"
-#include "traccc/edm/spacepoint.hpp"
-
 namespace traccc {
 namespace stdpar {
 
-void local_to_global(const cell_module& module, 
-                     measurement *measurements_array, 
-                     spacepoint *spacepoints_array, 
-                     const int number_of_measurements);
 void execute();
 
 }  // namespace stdpar
