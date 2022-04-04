@@ -37,6 +37,17 @@ inline traccc::geometry read_geometry(const std::string &detector_file) {
                            "rot_xw", "rot_zu", "rot_zv", "rot_zw"});
     return traccc::read_surfaces(sreader);
 }
+inline traccc::geometry read_geometry2(const std::string &detector_file) {
+    // Read the surface transforms
+    std::string io_detector_file = data_directory() + detector_file;
+    traccc::surface_reader* sreader = new traccc::surface_reader(
+        io_detector_file, {"geometry_id", "cx", "cy", "cz", "rot_xu", "rot_xv",
+                           "rot_xw", "rot_zu", "rot_zv", "rot_zw"});
+
+    // TODO: figure out, if we should free the memory from sreader again                    
+    
+    return traccc::read_surfaces(*sreader);
+}
 
 /// Function for cell file reading. The output is traccc container.
 ///

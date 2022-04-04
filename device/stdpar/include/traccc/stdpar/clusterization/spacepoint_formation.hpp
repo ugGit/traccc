@@ -17,16 +17,7 @@
 #include <algorithm>
 #include <execution>
 
-// Time measurements (temporary) // TODO: remove again (20220401)
-#include <chrono>
 #include <iostream>
-#include <stdio.h>
-
-
-#include <iostream>
-#include <algorithm>
-#include <execution>
-#include <chrono>
 #include <vector>
 
 namespace traccc::stdpar {
@@ -76,8 +67,6 @@ struct spacepoint_formation
                     const host_measurement_collection& measurements,
                     output_type& spacepoints) const {
         // Run the algorithm
-
-
         spacepoints.reserve(measurements.size());
         measurement *measurements_array = new measurement[measurements.size()];
         spacepoint *spacepoints_array = new spacepoint[measurements.size()];
@@ -89,21 +78,28 @@ struct spacepoint_formation
             measurements_array[i] = measurements.at(i);
         }
 
-        // start crono
-        const auto t1 = std::chrono::high_resolution_clock::now();
-
-        traccc::stdpar::local_to_global(module, measurements_array, spacepoints_array, number_of_measurements);
-
-        // stop crono
-        const auto t2 = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<double, std::milli> ms = t2 - t1;
-        std::cout << "Execution time [ms]: " << ms.count() << "\n";
-        std::cout << "-----------\n";
+        std::for_each_n(std::execution::par_unseq, counting_iterator(0), number_of_measurements, 
+            [=](unsigned int i){
+                const auto m = measurements_array[i];
+                point3 local_3d = {m.local[0], m.local[1], 0.};
+                
+                point3 global = module.placement.point_to_global(local_3d);
+                variance3 variance = {0, 0, 0};
+                spacepoint s({global, variance, m});
+                
+                // @todo add variance estimation
+                spacepoints_array[i] = s;
+            }
+        ); 
 
         // store the values in the output
         for (int i = 0; i < number_of_measurements; i++){
             spacepoints.push_back(spacepoints_array[i]);
         }
+
+        // TODO: test when the next steps are included before keeping this
+        // delete[] measurements_array;
+        // delete[] spacepoints_array;
     }
 
     private:
