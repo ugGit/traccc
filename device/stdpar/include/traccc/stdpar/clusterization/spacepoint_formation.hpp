@@ -64,6 +64,7 @@ struct spacepoint_formation
                     const host_measurement_collection& measurements,
                     output_type& spacepoints) const {
         // Run the algorithm
+<<<<<<< HEAD
         int number_of_measurements = measurements.size();
         measurement *measurements_array = new measurement[number_of_measurements];
         spacepoint *spacepoints_array = new spacepoint[number_of_measurements];
@@ -71,6 +72,8 @@ struct spacepoint_formation
 <<<<<<< HEAD
 =======
 
+=======
+>>>>>>> working version par unseq inlined
         spacepoints.reserve(measurements.size());
         measurement *measurements_array = new measurement[measurements.size()];
         spacepoint *spacepoints_array = new spacepoint[measurements.size()];
@@ -84,6 +87,9 @@ struct spacepoint_formation
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> working version par unseq inlined
         std::for_each_n(std::execution::par_unseq, counting_iterator(0), number_of_measurements, 
             [=](unsigned int i){
                 const auto m = measurements_array[i];
@@ -97,6 +103,7 @@ struct spacepoint_formation
                 spacepoints_array[i] = s;
             }
         ); 
+<<<<<<< HEAD
 
         // store the values in the output
         spacepoints.reserve(number_of_measurements);
@@ -116,12 +123,21 @@ struct spacepoint_formation
         const std::chrono::duration<double, std::milli> ms = t2 - t1;
         std::cout << "Execution time [ms]: " << ms.count() << "\n";
         std::cout << "-----------\n";
+=======
+>>>>>>> working version par unseq inlined
 
         // store the values in the output
         for (int i = 0; i < number_of_measurements; i++){
             spacepoints.push_back(spacepoints_array[i]);
         }
+<<<<<<< HEAD
 >>>>>>> run local to global transofmration parallel (not yet par_unseq)
+=======
+
+        // TODO: test when the next steps are included before keeping this
+        // delete[] measurements_array;
+        // delete[] spacepoints_array;
+>>>>>>> working version par unseq inlined
     }
 
     private:
