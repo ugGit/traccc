@@ -12,13 +12,10 @@
 #include "traccc/utils/algorithm.hpp"
 
 // STDPAR depencencies
-#include "traccc/stdpar/utils/CountingIterator.h"
+#include "traccc/stdpar/utils/CountingIterator.hpp"
 #include "traccc/stdpar/clusterization/test.hpp"
 #include <algorithm>
 #include <execution>
-
-#include <iostream>
-#include <vector>
 
 namespace traccc::stdpar {
 
