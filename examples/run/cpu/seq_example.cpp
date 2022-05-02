@@ -96,6 +96,9 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> validate results with seq algo
         std::cout << "----------\n";
         std::cout << "Data of spacepoint for validation:\n";
         std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
@@ -103,12 +106,15 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         std::cout << "z: " << spacepoints_per_event[0].items[0].global[2] << std::endl;
         std::cout << "----------\n";
         
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> Get TBB errors, test.cpp is callable
 >>>>>>> Get TBB errors, test.cpp is callable
 =======
 >>>>>>> run local to global transofmration parallel (not yet par_unseq)
+=======
+>>>>>>> validate results with seq algo
         /*----------------------------
           Statistics
           ----------------------------*/
