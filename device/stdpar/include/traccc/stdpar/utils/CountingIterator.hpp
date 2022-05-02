@@ -1,3 +1,5 @@
+#pragma once
+
 struct counting_iterator {
 
   typedef size_t Index_t;
