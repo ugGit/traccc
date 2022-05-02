@@ -33,6 +33,7 @@ inline traccc::geometry read_geometry(const std::string &detector_file) {
                            "rot_xw", "rot_zu", "rot_zv", "rot_zw"});
     return traccc::read_surfaces(sreader);
 }
+// This should be a temporary function which allows to run std::par (comment on 30.04.2022)
 inline traccc::geometry read_geometry2(const std::string &detector_file) {
     // Read the surface transforms
     std::string io_detector_file = data_directory() + detector_file;
