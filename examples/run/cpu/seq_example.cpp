@@ -90,6 +90,13 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
         auto params = tp(spacepoints_per_event, seeds);
 
+        std::cout << "----------\n";
+        std::cout << "Data of spacepoint for validation:\n";
+        std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
+        std::cout << "y: " << spacepoints_per_event[0].items[0].global[1] << std::endl;
+        std::cout << "z: " << spacepoints_per_event[0].items[0].global[2] << std::endl;
+        std::cout << "----------\n";
+        
         /*----------------------------
           Statistics
           ----------------------------*/
