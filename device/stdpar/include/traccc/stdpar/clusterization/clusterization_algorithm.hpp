@@ -16,7 +16,7 @@
 
 // clusterization
 #include "traccc/clusterization/component_connection.hpp"
-#include "traccc/clusterization/measurement_creation.hpp"
+#include "traccc/stdpar/clusterization/measurement_creation.hpp"
 #include "traccc/stdpar/clusterization/spacepoint_formation.hpp"
 #include "traccc/stdpar/clusterization/test.hpp"
 
@@ -33,7 +33,6 @@ class clusterization_algorithm
     ///
     /// @param mr is the memory resource
     clusterization_algorithm(vecmem::memory_resource& mr) : m_mr(mr) {
-        std::cout << "Init STDPAR Clusterization Algorithm" << std::endl;
         cc = std::make_shared<traccc::component_connection>(
             traccc::component_connection(mr));
         mt = std::make_shared<traccc::measurement_creation>(
