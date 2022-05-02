@@ -36,7 +36,7 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
     const auto t1 = std::chrono::high_resolution_clock::now();
 
     // Read the surface transforms
-    auto surface_transforms = traccc::read_geometry2(i_cfg.detector_file);
+    auto surface_transforms = traccc::read_geometry2(i_cfg.detector_file); // to run successfully using std par, the modified version of read_geometry is needed (related to string deconstruction problem)
 
     // Output stats
     uint64_t n_cells = 0;
@@ -68,6 +68,13 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
         auto& measurements_per_event = ca_result.first;
         auto& spacepoints_per_event = ca_result.second;
 
+        std::cout << "----------\n";
+        std::cout << "Data of spacepoint for validation:\n";
+        std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
+        std::cout << "y: " << spacepoints_per_event[0].items[0].global[1] << std::endl;
+        std::cout << "z: " << spacepoints_per_event[0].items[0].global[2] << std::endl;
+        std::cout << "----------\n";
+
         /*----------------------------
           Statistics
           ----------------------------*/
@@ -93,6 +100,7 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
               << std::endl;
     std::cout << "- created " << n_spacepoints << " space points. "
               << std::endl;      
+
 
     return 0;   
 }

@@ -11,10 +11,6 @@
 #include "traccc/edm/spacepoint.hpp"
 #include "traccc/utils/algorithm.hpp"
 
-// Time measurements (temporary) // TODO: remove again (20220401)
-#include <chrono>
-#include <iostream>
-
 namespace traccc {
 
 /// Connected component labeling.
@@ -63,9 +59,6 @@ struct spacepoint_formation
                     output_type& spacepoints) const {
         // Run the algorithm
         spacepoints.reserve(measurements.size());
-        
-        // start crono
-        const auto t1 = std::chrono::high_resolution_clock::now();
 
         for (const auto& m : measurements) {
             point3 local_3d = {m.local[0], m.local[1], 0.};
@@ -76,12 +69,6 @@ struct spacepoint_formation
             // @todo add variance estimation
             spacepoints.push_back(std::move(s));
         }
-
-        // stop crono
-        const auto t2 = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<double, std::milli> ms = t2 - t1;
-        std::cout << "Execution time [ms]: " << ms.count() << "\n";
-        std::cout << "-----------\n";
     }
 
     private:
