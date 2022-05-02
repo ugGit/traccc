@@ -15,10 +15,11 @@ set( LIB "traccc_stdpar" )
 # Set up the build of the traccc::stdpar library.
 traccc_add_library( ${LIB} stdpar TYPE SHARED
   # utils
-  "include/traccc/stdpar/utils/CountingIterator.h"
+  "include/traccc/stdpar/utils/CountingIterator.hpp"
   # header files
   "include/traccc/stdpar/clusterization/test.hpp"
   "include/traccc/stdpar/clusterization/spacepoint_formation.hpp"
+  "include/traccc/stdpar/clusterization/measurement_creation.hpp"
   "include/traccc/stdpar/clusterization/clusterization_algorithm.hpp"
   # implementation files
   "src/clusterization/test.cpp"
