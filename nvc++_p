@@ -19,9 +19,14 @@ is_any_in_args(){
   done
   return 1
 }
-
+# declare files to be compiled with nvc++
+NVCPP_DIRS=(
+    "traccc_stdpar_seq_example.dir"
+    "traccc_stdpar_par_example.dir"
+    "traccc_stdpar_par_unseq_example.dir"
+    "traccc_stdpar.dir")
 # Prepare compiler args for nvc++ or g++
-if is_any_in_args "traccc_stdpar_par_example.dir" "traccc_stdpar.dir"; then
+if is_any_in_args "${NVCPP_DIRS[@]}"; then
     echo ""; echo "******************************"
     echo "Use NVC++ COMPILER"
     echo "******************************"; echo ""
