@@ -62,10 +62,26 @@ struct measurement_creation
     void operator()(const host_cluster_container &clusters,
                     const cell_module &module,
                     output_type &measurements) const {
+
         // Run the algorithm
         auto pitch = module.pixel.get_pitch();
 
-        measurements.reserve(clusters.size());
+        auto clusters_items = clusters.get_items();
+        int number_of_clusters = clusters_items.size();
+        measurements.reserve(number_of_clusters);
+        vecmem::vector<traccc::cell> *clusters_array = new vecmem::vector<traccc::cell>[number_of_clusters]; 
+
+        // populate the array by copying the values
+        for (int i = 0; i < number_of_clusters; i++){
+            clusters_array[i] = clusters_items.at(i);
+        }
+
+        /* This causes an error on push back of measurement at the very end of the function.
+        // TODO: add closing paranthese ')' at end of function if uncommented.
+        std::for_each_n(std::execution::par_unseq, counting_iterator(0), number_of_clusters, 
+            [=](unsigned int j){
+                const auto &cluster = clusters_array[j];
+                */
         for (const auto &cluster : clusters.get_items()) {
                 scalar totalWeight = 0.;
 
