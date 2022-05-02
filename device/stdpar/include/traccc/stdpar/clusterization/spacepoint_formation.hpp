@@ -67,11 +67,9 @@ struct spacepoint_formation
                     const host_measurement_collection& measurements,
                     output_type& spacepoints) const {
         // Run the algorithm
-        spacepoints.reserve(measurements.size());
-        measurement *measurements_array = new measurement[measurements.size()];
-        spacepoint *spacepoints_array = new spacepoint[measurements.size()];
-
         int number_of_measurements = measurements.size();
+        measurement *measurements_array = new measurement[number_of_measurements];
+        spacepoint *spacepoints_array = new spacepoint[number_of_measurements];
 
         // populate the array by copying the values
         for (int i = 0; i < number_of_measurements; i++){
@@ -93,9 +91,8 @@ struct spacepoint_formation
         ); 
 
         // store the values in the output
-        for (int i = 0; i < number_of_measurements; i++){
-            spacepoints.push_back(spacepoints_array[i]);
-        }
+        spacepoints.reserve(number_of_measurements);
+        spacepoints.insert(spacepoints.end(), &spacepoints_array[0], &spacepoints_array[number_of_measurements]);
 
         // TODO: test when the next steps are included before keeping this
         // delete[] measurements_array;
