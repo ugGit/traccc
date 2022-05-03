@@ -1,4 +1,4 @@
-/** TRACCC library, part of the ACTS project (R&D line)
+  /** TRACCC library, part of the ACTS project (R&D line)
  *
  * (c) 2021-2022 CERN for the benefit of the ACTS project
  *
@@ -16,6 +16,7 @@
 #include "traccc/stdpar/clusterization/clusterization_algorithm.hpp"
 
 // options
+#include "traccc/options/common_options.hpp"
 #include "traccc/options/full_tracking_input_options.hpp"
 #include "traccc/options/handle_argument_errors.hpp"
 
@@ -30,9 +31,8 @@
 
 namespace po = boost::program_options;
 
-
-int par_run(const traccc::full_tracking_input_config& i_cfg) {
-    // start crono
+int seq_run(const traccc::full_tracking_input_config& i_cfg,
+            const traccc::common_options& common_opts) {
     const auto t1 = std::chrono::high_resolution_clock::now();
 
     // Read the surface transforms
@@ -52,12 +52,13 @@ int par_run(const traccc::full_tracking_input_config& i_cfg) {
     traccc::stdpar::clusterization_algorithm *ca = new traccc::stdpar::clusterization_algorithm(host_mr);
 
     // Loop over events
-    for (unsigned int event = i_cfg.skip; event < i_cfg.events + i_cfg.skip;
-         ++event) {
+    for (unsigned int event = common_opts.skip;
+         event < common_opts.events + common_opts.skip; ++event) {
 
         // Read the cells from the relevant event file
         traccc::host_cell_container cells_per_event =
             traccc::read_cells_from_event(event, i_cfg.cell_directory,
+                                          common_opts.input_data_format,
                                           surface_transforms, host_mr);
 
         /*-------------------
@@ -111,21 +112,23 @@ int main(int argc, char* argv[]){
 
     // Add options
     desc.add_options()("help,h", "Give some help with the program's options");
+    traccc::common_options common_opts(desc);
     traccc::full_tracking_input_config full_tracking_input_cfg(desc);
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
-    // Read options
-    full_tracking_input_cfg.read(vm);
-
     // Check errors
     traccc::handle_argument_errors(vm, desc);
 
-    std::cout << "Running " << argv[0] << " "
-                << full_tracking_input_cfg.detector_file << " "
-                << full_tracking_input_cfg.cell_directory << " "
-                << full_tracking_input_cfg.events << std::endl;
+    // Read options
+    common_opts.read(vm);
+    full_tracking_input_cfg.read(vm);
 
-    return par_run(full_tracking_input_cfg);
+    std::cout << "Running " << argv[0] << " "
+              << full_tracking_input_cfg.detector_file << " "
+              << full_tracking_input_cfg.cell_directory << " "
+              << common_opts.events << std::endl;
+
+    return seq_run(full_tracking_input_cfg, common_opts);
 }

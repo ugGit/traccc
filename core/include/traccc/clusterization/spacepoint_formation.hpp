@@ -54,21 +54,24 @@ class spacepoint_formation : public algorithm<spacepoint_container_types::host(
                                           &m_mr.get());
 
         // Run the algorithm
-        spacepoints.reserve(measurements.size());
+        for (std::size_t i = 0; i < measurements_per_event.size(); ++i) {
+            const auto& module = measurements_per_event.at(i).header;
+            const auto& measurements_per_module =
+                measurements_per_event.at(i).items;
+            auto& spacepoints_per_module = spacepoints_per_event.at(i).items;
+            spacepoints_per_module.reserve(measurements_per_module.size());
 
-        for (const auto& m : measurements) {
-            point3 local_3d = {m.local[0], m.local[1], 0.};
-            point3 global = module.placement.point_to_global(local_3d);
-            variance3 variance = {0, 0, 0};
-            spacepoint s({global, variance, m});
-            spacepoints_per_module.push_back(std::move(s));
+            for (const auto& m : measurements_per_module) {
+
+                point3 local_3d = {m.local[0], m.local[1], 0.};
+                point3 global = module.placement.point_to_global(local_3d);
+                spacepoint s({global, m});
+
+                spacepoints_per_module.push_back(std::move(s));
             }
         }
-<<<<<<< HEAD
 
         return spacepoints_per_event;
-=======
->>>>>>> validate results with seq algo
     }
 >>>>>>> validate results with seq algo
 

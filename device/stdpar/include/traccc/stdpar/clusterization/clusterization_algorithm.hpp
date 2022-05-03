@@ -12,7 +12,6 @@
 #include "traccc/edm/internal_spacepoint.hpp"
 #include "traccc/edm/measurement.hpp"
 #include "traccc/edm/spacepoint.hpp"
-#include "traccc/geometry/pixel_segmentation.hpp"
 
 // clusterization
 #include "traccc/stdpar/clusterization/component_connection.hpp"
@@ -33,10 +32,10 @@ class clusterization_algorithm
     ///
     /// @param mr is the memory resource
     clusterization_algorithm(vecmem::memory_resource& mr) : m_mr(mr) {
-        cc = std::make_shared<traccc::component_connection>(
-            traccc::component_connection(mr));
-        mt = std::make_shared<traccc::measurement_creation>(
-            traccc::measurement_creation(mr));
+        cc = std::make_shared<traccc::stdpar::component_connection>(
+            traccc::stdpar::component_connection(mr));
+        mt = std::make_shared<traccc::stdpar::measurement_creation>(
+            traccc::stdpar::measurement_creation(mr));
         sp = std::make_shared<traccc::stdpar::spacepoint_formation>(
             traccc::stdpar::spacepoint_formation(mr));
     }
@@ -65,8 +64,9 @@ class clusterization_algorithm
             // The algorithmic code part: start
             traccc::host_cluster_container clusters = cc->operator()(
                 cells_per_event.at(i).items, cells_per_event.at(i).header);
-            for (auto& cl_id : clusters.get_headers())
-                cl_id.position_from_cell = module.pixel;
+            for (auto& cl_id : clusters.get_headers()) {
+                cl_id.pixel = module.pixel;
+            }
 
             traccc::host_measurement_collection measurements_per_module =
                 mt->operator()(clusters, module);
@@ -84,8 +84,8 @@ class clusterization_algorithm
 
     private:
     // algorithms
-    std::shared_ptr<traccc::component_connection> cc;
-    std::shared_ptr<traccc::measurement_creation> mt;
+    std::shared_ptr<traccc::stdpar::component_connection> cc;
+    std::shared_ptr<traccc::stdpar::measurement_creation> mt;
     std::shared_ptr<traccc::stdpar::spacepoint_formation> sp;
     std::reference_wrapper<vecmem::memory_resource> m_mr;
 };
