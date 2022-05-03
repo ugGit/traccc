@@ -15,7 +15,7 @@
 #include "traccc/geometry/pixel_segmentation.hpp"
 
 // clusterization
-#include "traccc/clusterization/component_connection.hpp"
+#include "traccc/stdpar/clusterization/component_connection.hpp"
 #include "traccc/stdpar/clusterization/measurement_creation.hpp"
 #include "traccc/stdpar/clusterization/spacepoint_formation.hpp"
 #include "traccc/stdpar/clusterization/test.hpp"
