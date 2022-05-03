@@ -7,18 +7,14 @@
 
 #pragma once
 
+#include "traccc/stdpar/clusterization/measurement_creation_helper.hpp"
 #include "traccc/definitions/primitives.hpp"
 #include "traccc/edm/cell.hpp"
 #include "traccc/edm/cluster.hpp"
 #include "traccc/edm/measurement.hpp"
 #include "traccc/utils/algorithm.hpp"
 
-// STDPAR depencencies
-#include "traccc/stdpar/utils/CountingIterator.hpp"
-#include <algorithm>
-#include <execution>
-
-namespace traccc {
+namespace traccc::stdpar {
 
 /// Connected component labeling.
 struct measurement_creation
@@ -66,6 +62,7 @@ struct measurement_creation
         // Run the algorithm
         auto pitch = module.pixel.get_pitch();
 
+
         auto clusters_items = clusters.get_items();
         int number_of_clusters = clusters_items.size();
         measurements.reserve(number_of_clusters);
@@ -83,56 +80,45 @@ struct measurement_creation
                 const auto &cluster = clusters_array[j];
                 */
         for (const auto &cluster : clusters.get_items()) {
-                scalar totalWeight = 0.;
+            scalar totalWeight = 0.;
 
-                // To calculate the mean and variance with high numerical stability
-                // we use a weighted variant of Welford's algorithm. This is a
-                // single-pass online algorithm that works well for large numbers
-                // of samples, as well as samples with very high values.
-                //
-                // To learn more about this algorithm please refer to:
-                // [1] https://doi.org/10.1080/00401706.1962.10490022
-                // [2] The Art of Computer Programming, Donald E. Knuth, second
-                //     edition, chapter 4.2.2.
-                point2 mean = {0., 0.}, var = {0., 0.};
+            // To calculate the mean and variance with high numerical stability
+            // we use a weighted variant of Welford's algorithm. This is a
+            // single-pass online algorithm that works well for large numbers
+            // of samples, as well as samples with very high values.
+            //
+            // To learn more about this algorithm please refer to:
+            // [1] https://doi.org/10.1080/00401706.1962.10490022
+            // [2] The Art of Computer Programming, Donald E. Knuth, second
+            //     edition, chapter 4.2.2.
+            point2 mean = {0., 0.}, var = {0., 0.};
 
-                // Should not happen
-                if (cluster.empty()) {
-                    return;
-                }
-
-                const auto &cl_id = clusters.at(0).header;
-                for (const auto &cell : cluster) {
-                    scalar weight = cl_id.signal(cell.activation);
-                    if (weight > cl_id.threshold) {
-                        totalWeight += cell.activation;
-                        const point2 cell_position =
-                            cl_id.position_from_cell(cell.channel0, cell.channel1);
-
-                        const point2 prev = mean;
-                        const point2 diff = cell_position - prev;
-
-                        mean = prev + (weight / totalWeight) * diff;
-                        for (std::size_t i = 0; i < 2; ++i) {
-                            var[i] = var[i] + weight * (diff[i]) *
-                                                  (cell_position[i] - mean[i]);
-                        }
-                    }
-                }
-                if (totalWeight > 0.) {
-                    measurement m;
-                    // normalize the cell position
-                    m.local = mean;
-                    // normalize the variance
-                    m.variance[0] = var[0] / totalWeight;
-                    m.variance[1] = var[1] / totalWeight;
-                    // plus pitch^2 / 12
-                    m.variance = m.variance + point2{pitch[0] * pitch[0] / 12,
-                                                    pitch[1] * pitch[1] / 12};
-                    // @todo add variance estimation
-                    measurements.push_back(std::move(m));
-                }
+            // Should not happen
+            if (cluster.empty()) {
+                continue;
             }
+
+            // Get the cluster id for this module
+            const auto &cl_id = clusters.at(0).header;
+
+            // Calculate the cluster properties
+            traccc::stdpar::calc_cluster_properties<vecmem::vector, cell>(cluster, cl_id, mean,
+                                                          var, totalWeight);
+
+            if (totalWeight > 0.) {
+                measurement m;
+                // normalize the cell position
+                m.local = mean;
+                // normalize the variance
+                m.variance[0] = var[0] / totalWeight;
+                m.variance[1] = var[1] / totalWeight;
+                // plus pitch^2 / 12
+                m.variance = m.variance + point2{pitch[0] * pitch[0] / 12,
+                                                 pitch[1] * pitch[1] / 12};
+                // @todo add variance estimation
+                measurements.push_back(std::move(m));
+            }
+        }
     }
 
     private:

@@ -12,7 +12,7 @@
 #include "traccc/edm/cluster.hpp"
 #include "traccc/utils/algorithm.hpp"
 
-namespace traccc {
+namespace traccc::stdpar {
 
 /// Connected component labelling
 ///
@@ -26,9 +26,9 @@ namespace traccc {
 ///
 class component_connection
     : public algorithm<host_cluster_container(const host_cell_collection&,
-                                              const cell_module&)>,
-      public algorithm<host_cluster_container(const device_cell_collection&,
                                               const cell_module&)> {
+    //   public algorithm<host_cluster_container(const device_cell_collection&,
+    //                                           const cell_module&)> {
     public:
     /// Constructor for component_connection
     ///
@@ -53,7 +53,6 @@ class component_connection
         const cell_module& module) const override {
         return this->operator()<vecmem::vector>(cells, module);
     }
-
     /// @}
 
     /// @name Operators to use in device code
@@ -71,11 +70,11 @@ class component_connection
     /// c++20 piping interface:
     /// @return a cluster collection
     ///
-    host_cluster_container operator()(
-        const device_cell_collection& cells,
-        const cell_module& module) const override {
-        return this->operator()<vecmem::device_vector>(cells, module);
-    }
+    // host_cluster_container operator()(
+    //     const device_cell_collection& cells,
+    //     const cell_module& module) const override {
+    //     return this->operator()<vecmem::device_vector>(cells, module);
+    // }
 
     private:
     /// Implementation for the public cell collection creation operators
@@ -92,10 +91,14 @@ class component_connection
     void operator()(const cell_collection<vector_type>& cells,
                     const cell_module& module,
                     host_cluster_container& clusters) const {
-        // Run the algorithm
-        auto connected_cells = detail::sparse_ccl<vector_type>(cells);
 
-        clusters.resize(std::get<0>(connected_cells));
+        // Run the algorithm
+        unsigned int num_clusters = 0;
+        vector_type<unsigned int> connected_cells(cells.size(), &m_mr.get());
+        detail::sparse_ccl<vector_type, traccc::cell>(cells, connected_cells,
+                                                      num_clusters);
+
+        clusters.resize(num_clusters);
         for (auto& cl_id : clusters.get_headers()) {
             cl_id.module = module.module;
             cl_id.placement = module.placement;
@@ -103,7 +106,7 @@ class component_connection
 
         auto& cluster_items = clusters.get_items();
         unsigned int icell = 0;
-        for (auto cell_label : std::get<1>(connected_cells)) {
+        for (auto cell_label : connected_cells) {
             auto cindex = static_cast<unsigned int>(cell_label - 1);
             if (cindex < cluster_items.size()) {
                 cluster_items[cindex].push_back(cells[icell++]);
