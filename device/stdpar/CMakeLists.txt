@@ -20,6 +20,7 @@ traccc_add_library( ${LIB} stdpar TYPE SHARED
   "include/traccc/stdpar/clusterization/test.hpp"
   "include/traccc/stdpar/clusterization/spacepoint_formation.hpp"
   "include/traccc/stdpar/clusterization/measurement_creation.hpp"
+  "include/traccc/stdpar/clusterization/measurement_creation_helper.hpp"
   "include/traccc/stdpar/clusterization/component_connection.hpp"
   "include/traccc/stdpar/clusterization/clusterization_algorithm.hpp"
   # implementation files

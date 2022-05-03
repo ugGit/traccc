@@ -42,6 +42,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
     uint64_t n_modules = 0;
     uint64_t n_measurements = 0;
     uint64_t n_spacepoints = 0;
+    uint64_t n_seeds = 0;
 
     // Memory resource used by the EDM.
     vecmem::host_memory_resource host_mr;
@@ -90,13 +91,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
         auto params = tp(spacepoints_per_event, seeds);
 
-        std::cout << "----------\n";
-        std::cout << "Data of spacepoint for validation:\n";
-        std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
-        std::cout << "y: " << spacepoints_per_event[0].items[0].global[1] << std::endl;
-        std::cout << "z: " << spacepoints_per_event[0].items[0].global[2] << std::endl;
-        std::cout << "----------\n";
-        
         /*----------------------------
           Statistics
           ----------------------------*/
@@ -105,8 +99,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         n_cells += cells_per_event.total_size();
         n_measurements += measurements_per_event.total_size();
         n_spacepoints += spacepoints_per_event.total_size();
-<<<<<<< HEAD
-<<<<<<< HEAD
         n_seeds += seeds.size();
 
         /*------------
@@ -121,13 +113,9 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
             sd_performance_writer.write("CPU", seeds, spacepoints_per_event,
                                         evt_map);
         }
-=======
->>>>>>> Get TBB errors, test.cpp is callable
-=======
-
-        break;
->>>>>>> run local to global transofmration parallel (not yet par_unseq)
     }
+
+    sd_performance_writer.finalize();
 
     std::cout << "==> Statistics ... " << std::endl;
     std::cout << "- read    " << n_cells << " cells from " << n_modules
@@ -136,15 +124,14 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
               << std::endl;
     std::cout << "- created " << n_spacepoints << " space points. "
               << std::endl;
+    std::cout << "- created " << n_seeds << " seeds" << std::endl;
 
     return 0;
 }
 
-int main(int argc, char* argv[]){
-    std::cout << "Start STDPAR Example\n";
-
-    // traccc::stdpar::execute();
-
+// The main routine
+//
+int main(int argc, char* argv[]) {
     // Set up the program options
     po::options_description desc("Allowed options");
 
@@ -164,15 +151,9 @@ int main(int argc, char* argv[]){
     full_tracking_input_cfg.read(vm);
 
     std::cout << "Running " << argv[0] << " "
-<<<<<<< HEAD
               << full_tracking_input_cfg.detector_file << " "
               << full_tracking_input_cfg.cell_directory << " "
               << common_opts.events << std::endl;
-=======
-                << full_tracking_input_cfg.detector_file << " "
-                << full_tracking_input_cfg.cell_directory << " "
-                << full_tracking_input_cfg.events << std::endl;
->>>>>>> Get TBB errors, test.cpp is callable
 
     return seq_run(full_tracking_input_cfg, common_opts);
 }
