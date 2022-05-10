@@ -46,7 +46,6 @@ inline traccc::geometry read_geometry2(const std::string &detector_file) {
                            "rot_xw", "rot_zu", "rot_zv", "rot_zw"});
 
     // TODO: figure out, if we should free the memory from sreader again                    
-    
     return traccc::read_surfaces(*sreader);
 }
 
