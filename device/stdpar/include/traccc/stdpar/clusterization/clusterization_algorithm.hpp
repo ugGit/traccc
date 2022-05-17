@@ -1,4 +1,5 @@
-/** TRACCC library, part of the ACTS project (R&D line)
+/*
+ * TRACCC library, part of the ACTS project (R&D line)
  *
  * (c) 2021-2022 CERN for the benefit of the ACTS project
  *
