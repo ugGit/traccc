@@ -379,7 +379,7 @@ void fast_sv_kernel(
   /*
    * Start running the work in different kernels using std par.
    */
-  std::for_each_n(std::execution::par, counting_iterator(0), partitions->size(),
+  std::for_each_n(std::execution::seq, counting_iterator(0), partitions->size(),
     [=](unsigned int i){;
     /*
      * Seek the correct cell region in the input data. Again, this is all a
@@ -548,6 +548,8 @@ std::vector<details::ccl_partition> partition(
 
 host_measurement_container component_connection_ssv::operator()(
     const host_cell_container& data) const {
+    
+    printf("Start CCA with SSV\n");
 
     // TODO: replace with call to host_cell_container.size() once code is working
     /*
@@ -595,13 +597,12 @@ host_measurement_container component_connection_ssv::operator()(
     container->time = time->data();
     container->module_id = module_id->data();
 
+    printf("Finish data transformation, start partitioning\n");
     /*  
      * Run the partitioning algorithm sequentially.
      */
     std::vector<details::ccl_partition> partitions = 
       details::partition(container->channel0, container->size);
-    details::helper::print_partitions(partitions);
-    details::helper::print_cells_in_partitions(partitions, container->channel0, container->channel1);
 
     /*
      * Reserve space for the result of the algorithm. Currently, there is 
@@ -617,10 +618,14 @@ host_measurement_container component_connection_ssv::operator()(
     mctnr->variance1 = new scalar[total_cells];
     mctnr->module_id = new geometry_id[total_cells];
 
+    printf("Finish partitioning, start algo\n");
+
     /*
      * Run the connected component labeling algorithm to retrieve the clusters.
      */
     fast_sv_kernel(container, &partitions, mctnr);
+
+    printf("Finish algo, start backporting results\n");
 
     /*
      * Transform flat data structure to expected output format again.
