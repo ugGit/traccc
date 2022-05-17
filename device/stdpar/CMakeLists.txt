@@ -34,3 +34,5 @@ target_link_libraries( ${LIB}
 set (STDPAR_TARGET "gpu")
 target_compile_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
 target_link_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${LIB} PRIVATE -gpu=managed:intercept)
+target_link_options(${LIB} PRIVATE -gpu=managed:intercept)

@@ -9,7 +9,9 @@ traccc_add_test( stdpar "test_cca.cpp"
    LINK_LIBRARIES GTest::gtest_main vecmem::core traccc_tests_common
                   traccc::core traccc::io traccc::stdpar)
 
-#set (LIB "traccc_test_stdpar")
-#target_compile_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
-#target_link_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+set (LIB "traccc_test_stdpar")
+target_compile_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+target_link_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${LIB} PRIVATE -gpu=managed:intercept)
+target_link_options(${LIB} PRIVATE -gpu=managed:intercept)
                   
