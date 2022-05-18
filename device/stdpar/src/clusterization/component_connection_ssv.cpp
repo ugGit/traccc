@@ -292,7 +292,7 @@ void aggregate_clusters(const cell_container &cells,
   /*
    * Iterate over every cell in the partition and perform aggregation once per cluster.
    */
-  std::for_each_n(counting_iterator(0), size, 
+  std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
     [=](unsigned int i){
       /*
        * If and only if the value in the work arrays is equal to the index
