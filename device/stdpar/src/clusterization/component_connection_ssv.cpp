@@ -337,12 +337,6 @@ void aggregate_clusters(const cell_container &cells,
 
                 vx += w * dx * (cells.channel0[j] - mx);
                 vy += w * dy * (cells.channel1[j] - my);
-                /*
-                printf("------\n");
-                printf("pmx=%f, wf=%f, dx=%f\n", pmx, wf, dx);
-                printf("w=%f, dx=%f, cells.channel0[j]=%d, mx=%f\n", w, dx, cells.channel0[j], mx);
-                printf("Cluster %d: vx=%f, vy=%f\n", *cluster_index, vx, vy);
-                */
             }
         }
 
@@ -499,30 +493,29 @@ void fast_sv_kernel(
  * TODO: this implementation uses already the flattened data compared to the CUDA version.
  */
 std::vector<details::ccl_partition> partition(
-    channel_id *channel1,
-    std::size_t n_cells) {
+    channel_id *channel1, std::size_t n_cells) {
     std::vector<details::ccl_partition> partitions;
     std::size_t index = 0;
     std::size_t size = 0;
 
     /*
-      * We start at 0 since this is the origin of the local coordinate 
-      * system within a cell module.
-      */
+     * We start at 0 since this is the origin of the local coordinate 
+     * system within a detector module.
+     */
     channel_id last_mid = 0;
 
     /*
-     * Iterate over every cell module in the current data set.
+     * Iterate over every cell in the current data set.
      */
     for (std::size_t i = 0; i < n_cells; ++i) {
         /*
-          * Create a new partition if an "empty" row is detected. A row 
-          * is considered "empty" if the channel1 value between two 
-          * consecutive cells have a difference > 1.
-          * To prevent creating many small partitions, the current partition
-          * must have at least twice the size of threads per block. This 
-          * guarantees that each thread handles later at least two cells.
-          */
+         * Create a new partition if an "empty" row is detected. A row 
+         * is considered "empty" if the channel1 values between two 
+         * consecutive cells have a difference > 1.
+         * To prevent creating many small partitions, the current partition
+         * must have at least twice the size of threads per block. This 
+         * guarantees that each thread handles later at least two cells.
+         */
         if (channel1[i] > last_mid + 1 && size >= MAX_CELLS_PER_PARTITION) {
             partitions.push_back(
                 details::ccl_partition{.start = index, .size = size});
@@ -536,8 +529,7 @@ std::vector<details::ccl_partition> partition(
     }
 
     /*
-     * Create the very last partition after having iterated over all cell 
-     * modules and cells.
+     * Create the very last partition after having iterated over all cells.
      */
     if (size > 0) {
         partitions.push_back(
@@ -604,8 +596,8 @@ host_measurement_container component_connection_ssv::operator()(
      * Run the partitioning algorithm sequentially.
      */
     std::vector<details::ccl_partition> partitions = 
-      details::partition(container->channel0, container->size);
-
+      details::partition(container->channel1, container->size);
+    
     /*
      * Reserve space for the result of the algorithm. Currently, there is 
      * enough space allocated that (in theory) each cell could be a single
@@ -624,6 +616,11 @@ host_measurement_container component_connection_ssv::operator()(
      * Run the connected component labeling algorithm to retrieve the clusters.
      */
     fast_sv_kernel(container, &partitions, mctnr);
+  
+    /*
+    * Some print outs to follow the execution of the program. To be deleted later.
+    */
+    printf("Total number of clusters=%d\n", mctnr->size);
 
     /*
      * Transform flat data structure to expected output format again.
