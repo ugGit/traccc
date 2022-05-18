@@ -490,7 +490,9 @@ void fast_sv_kernel(
 }
 
 /*
- * TODO: this implementation uses already the flattened data compared to the CUDA version.
+ * Split the problem into different partitions that will later be executed in parallel.
+ *
+ * This implementation uses already the flattened data compared to the CUDA version.
  */
 std::vector<details::ccl_partition> partition(
     channel_id *channel1, std::size_t n_cells) {
