@@ -561,25 +561,25 @@ host_measurement_container component_connection_ssv::operator()(
     /*
      * Flatten input data.
      */
-    vecmem::vector<channel_id> *channel0   = new vecmem::vector<channel_id> ;
-    vecmem::vector<channel_id> *channel1   = new vecmem::vector<channel_id> ;
-    vecmem::vector<scalar> *activation     = new vecmem::vector<scalar>     ;
-    vecmem::vector<scalar> *time           = new vecmem::vector<scalar>     ;
-    vecmem::vector<geometry_id> *module_id = new vecmem::vector<geometry_id>;
+    vecmem::vector<channel_id> channel0;
+    vecmem::vector<channel_id> channel1;
+    vecmem::vector<scalar> activation;
+    vecmem::vector<scalar> time;
+    vecmem::vector<geometry_id> module_id;
 
-    channel0->reserve(total_cells);
-    channel1->reserve(total_cells);
-    activation->reserve(total_cells);
-    time->reserve(total_cells);
-    module_id->reserve(total_cells);
+    channel0.reserve(total_cells);
+    channel1.reserve(total_cells);
+    activation.reserve(total_cells);
+    time.reserve(total_cells);
+    module_id.reserve(total_cells);
 
     for (std::size_t i = 0; i < data.size(); ++i) {
         for (std::size_t j = 0; j < data.at(i).items.size(); ++j) {
-            channel0->push_back(data.at(i).items.at(j).channel0);
-            channel1->push_back(data.at(i).items.at(j).channel1);
-            activation->push_back(data.at(i).items.at(j).activation);
-            time->push_back(data.at(i).items.at(j).time);
-            module_id->push_back(data.at(i).header.module);
+            channel0.push_back(data.at(i).items.at(j).channel0);
+            channel1.push_back(data.at(i).items.at(j).channel1);
+            activation.push_back(data.at(i).items.at(j).activation);
+            time.push_back(data.at(i).items.at(j).time);
+            module_id.push_back(data.at(i).header.module);
         }
     }
 
@@ -588,11 +588,11 @@ host_measurement_container component_connection_ssv::operator()(
     */
     details::cell_container *container = new details::cell_container();
     container->size = total_cells;
-    container->channel0 = channel0->data();
-    container->channel1 = channel1->data();
-    container->activation = activation->data();
-    container->time = time->data();
-    container->module_id = module_id->data();
+    container->channel0 = channel0.data();
+    container->channel1 = channel1.data();
+    container->activation = activation.data();
+    container->time = time.data();
+    container->module_id = module_id.data();
 
     /*  
      * Run the partitioning algorithm sequentially.
