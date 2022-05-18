@@ -292,7 +292,7 @@ void aggregate_clusters(const cell_container &cells,
   /*
    * Iterate over every cell in the partition and perform aggregation once per cluster.
    */
-  std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+  std::for_each_n(counting_iterator(0), size, 
     [=](unsigned int i){
       /*
        * If and only if the value in the work arrays is equal to the index
@@ -337,6 +337,12 @@ void aggregate_clusters(const cell_container &cells,
 
                 vx += w * dx * (cells.channel0[j] - mx);
                 vy += w * dy * (cells.channel1[j] - my);
+                /*
+                printf("------\n");
+                printf("pmx=%f, wf=%f, dx=%f\n", pmx, wf, dx);
+                printf("w=%f, dx=%f, cells.channel0[j]=%d, mx=%f\n", w, dx, cells.channel0[j], mx);
+                printf("Cluster %d: vx=%f, vy=%f\n", *cluster_index, vx, vy);
+                */
             }
         }
 
@@ -379,7 +385,7 @@ void fast_sv_kernel(
   /*
    * Start running the work in different kernels using std par.
    */
-  std::for_each_n(std::execution::seq, counting_iterator(0), partitions->size(),
+  std::for_each_n(std::execution::seq, counting_iterator(0), partitions->size(), // TODO: should be std::execution::par
     [=](unsigned int i){;
     /*
      * Seek the correct cell region in the input data. Again, this is all a
@@ -443,7 +449,7 @@ void fast_sv_kernel(
      * Count the number of clusters by checking how many nodes have
      * themself assigned as a parent.
      */
-    // TODO: Verify that adding an execution policy here makes actually sense. 
+    // TODO: Verify that adding an execution policy here makes actually sense. -> It would, but it is currently not supported by nvc++
     unsigned int number_of_clusters = std::count_if(std::execution::unseq, counting_iterator(0), counting_iterator(cells.size), 
       [=](unsigned int j){
         return f[j] == j;
@@ -548,9 +554,6 @@ std::vector<details::ccl_partition> partition(
 
 host_measurement_container component_connection_ssv::operator()(
     const host_cell_container& data) const {
-    
-    printf("Start CCA with SSV\n");
-
     // TODO: replace with call to host_cell_container.size() once code is working
     /*
      * Calculate the total amount of cells to deal with.
@@ -597,7 +600,6 @@ host_measurement_container component_connection_ssv::operator()(
     container->time = time->data();
     container->module_id = module_id->data();
 
-    printf("Finish data transformation, start partitioning\n");
     /*  
      * Run the partitioning algorithm sequentially.
      */
@@ -618,14 +620,10 @@ host_measurement_container component_connection_ssv::operator()(
     mctnr->variance1 = new scalar[total_cells];
     mctnr->module_id = new geometry_id[total_cells];
 
-    printf("Finish partitioning, start algo\n");
-
     /*
      * Run the connected component labeling algorithm to retrieve the clusters.
      */
     fast_sv_kernel(container, &partitions, mctnr);
-
-    printf("Finish algo, start backporting results\n");
 
     /*
      * Transform flat data structure to expected output format again.
