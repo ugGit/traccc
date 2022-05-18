@@ -1,3 +1,6 @@
+
+// execute using: TRACCC_TEST_DATA_DIR=/home/nwachuch/bld6/traccc/data/ build/bin/traccc_test_stdpar --gtest_filter=*single_module_multiple_hit_single_sparse_0000000000*
+
 /*
  * TRACCC library, part of the ACTS project (R&D line)
  *
