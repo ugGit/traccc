@@ -616,11 +616,6 @@ host_measurement_container component_connection_ssv::operator()(
      * Run the connected component labeling algorithm to retrieve the clusters.
      */
     fast_sv_kernel(container, &partitions, mctnr);
-  
-    /*
-    * Some print outs to follow the execution of the program. To be deleted later.
-    */
-    printf("Total number of clusters=%d\n", mctnr->size);
 
     /*
      * Transform flat data structure to expected output format again.
