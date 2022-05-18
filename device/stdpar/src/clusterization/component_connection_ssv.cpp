@@ -337,12 +337,12 @@ void aggregate_clusters(const cell_container &cells,
 
                 vx += w * dx * (cells.channel0[j] - mx);
                 vy += w * dy * (cells.channel1[j] - my);
-                /*
+                
                 printf("------\n");
                 printf("pmx=%f, wf=%f, dx=%f\n", pmx, wf, dx);
                 printf("w=%f, dx=%f, cells.channel0[j]=%d, mx=%f\n", w, dx, cells.channel0[j], mx);
                 printf("Cluster %d: vx=%f, vy=%f\n", *cluster_index, vx, vy);
-                */
+                
             }
         }
 
