@@ -367,7 +367,7 @@ void aggregate_clusters(const cell_container &cells,
  * Function that organized the parallel execution of the algotrithm.
  */
 void fast_sv_kernel(
-    const cell_container *container, 
+    const cell_container container, 
     const std::vector<details::ccl_partition> *partitions,
     measurement_container* _out_ctnr) {
   /*
@@ -391,11 +391,11 @@ void fast_sv_kernel(
     const ccl_partition& partition = p[i];
     cell_container cells;
     cells.size = partition.size;
-    cells.channel0 = &container->channel0[partition.start];
-    cells.channel1 = &container->channel1[partition.start];
-    cells.activation = &container->activation[partition.start];
-    cells.time = &container->time[partition.start];
-    cells.module_id = &container->module_id[partition.start];
+    cells.channel0 = &container.channel0[partition.start];
+    cells.channel1 = &container.channel1[partition.start];
+    cells.activation = &container.activation[partition.start];
+    cells.time = &container.time[partition.start];
+    cells.module_id = &container.module_id[partition.start];
 
     /*
      * As an optimisation, we will keep track of which cells are adjacent to
@@ -586,19 +586,19 @@ host_measurement_container component_connection_ssv::operator()(
     /*
     * Store the flattened arrays in a convenience data container.
     */
-    details::cell_container *container = new details::cell_container();
-    container->size = total_cells;
-    container->channel0 = channel0.data();
-    container->channel1 = channel1.data();
-    container->activation = activation.data();
-    container->time = time.data();
-    container->module_id = module_id.data();
+    details::cell_container container;
+    container.size = total_cells;
+    container.channel0 = channel0.data();
+    container.channel1 = channel1.data();
+    container.activation = activation.data();
+    container.time = time.data();
+    container.module_id = module_id.data();
 
     /*  
      * Run the partitioning algorithm sequentially.
      */
     std::vector<details::ccl_partition> partitions = 
-      details::partition(container->channel1, container->size);
+      details::partition(container.channel1, container.size);
     
     /*
      * Reserve space for the result of the algorithm. Currently, there is 
