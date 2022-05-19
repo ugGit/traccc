@@ -370,6 +370,12 @@ void fast_sv_kernel(
     const cell_container container, 
     const std::vector<details::ccl_partition> *partitions,
     measurement_container* _out_ctnr) {
+
+  /*
+   * If there is no partition, there is nothing to do for the kernel.
+   */
+  if(partitions->size() == 0) return;
+
   /*
    * Create a local data pointer to access the data in the array of the 
    * vector from within the parallel algorithm.
@@ -379,7 +385,7 @@ void fast_sv_kernel(
   /*
    * Start running the work in different kernels using std par.
    */
-  std::for_each_n(std::execution::seq, counting_iterator(0), partitions->size(), // TODO: should be std::execution::par
+  std::for_each_n(std::execution::par, counting_iterator(0), partitions->size(), // TODO: should be std::execution::par
     [=](unsigned int i){;
     /*
      * Seek the correct cell region in the input data. Again, this is all a
@@ -561,11 +567,11 @@ host_measurement_container component_connection_ssv::operator()(
     /*
      * Flatten input data.
      */
-    vecmem::vector<channel_id> channel0;
-    vecmem::vector<channel_id> channel1;
-    vecmem::vector<scalar> activation;
-    vecmem::vector<scalar> time;
-    vecmem::vector<geometry_id> module_id;
+    std::vector<channel_id> channel0;
+    std::vector<channel_id> channel1;
+    std::vector<scalar> activation;
+    std::vector<scalar> time;
+    std::vector<geometry_id> module_id;
 
     channel0.reserve(total_cells);
     channel1.reserve(total_cells);
