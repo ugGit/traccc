@@ -23,12 +23,11 @@
 namespace {
 using index_t = unsigned short;
 /*
- * Corresponds to the max amount of threads (2048) per core.
  * It is very likely, that small partitions will perform better,
  * because this algo does not control very fine grained the execution
  * pattern, and therefore, e.g. no graphs are created.
  */
-static constexpr std::size_t MAX_CELLS_PER_PARTITION = 2048;  
+static constexpr std::size_t MIN_CELLS_PER_PARTITION = 2048;  
 }  // namespace
 
 namespace traccc::stdpar {
@@ -410,8 +409,8 @@ void fast_sv_kernel(
      * many adjacent cells there are (i.e. adjc[i] determines how many of
      * the eight values in adjv[i] are actually meaningful).
      */
-    auto adjv = new index_t[MAX_CELLS_PER_PARTITION][8];
-    auto adjc = new unsigned char[MAX_CELLS_PER_PARTITION];
+    auto adjv = new index_t[MIN_CELLS_PER_PARTITION][8];
+    auto adjc = new unsigned char[MIN_CELLS_PER_PARTITION];
 
     /*
      * This loop initializes the adjacency cache, which essentially
@@ -484,7 +483,7 @@ void fast_sv_kernel(
      * Mandatory clean up of temporary variables on the heap.
      */
     /* TODO: this causes an error when using std::exec::par or par_unseq. We accept the memory leak for the moment...
-    for(unsigned int k = 0; k < MAX_CELLS_PER_PARTITION; k++){
+    for(unsigned int k = 0; k < MIN_CELLS_PER_PARTITION; k++){
       delete[] adjv[k];
     }
     */
@@ -530,7 +529,7 @@ std::vector<details::ccl_partition> partition(
          * must have at least twice the size of threads per block. This 
          * guarantees that each thread handles later at least two cells.
          */
-        if ((channel1[i] > last_mid + 1 || module_id[i] != current_geometry) && size >= MAX_CELLS_PER_PARTITION) {
+        if ((channel1[i] > last_mid + 1 || module_id[i] != current_geometry) && size >= MIN_CELLS_PER_PARTITION) {
             partitions.push_back(
                 details::ccl_partition{.start = index, .size = size});
 
