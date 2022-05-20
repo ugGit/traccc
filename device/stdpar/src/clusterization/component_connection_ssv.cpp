@@ -482,11 +482,6 @@ void fast_sv_kernel(
     /*
      * Mandatory clean up of temporary variables on the heap.
      */
-    /* TODO: this causes an error when using std::exec::par or par_unseq. We accept the memory leak for the moment...
-    for(unsigned int k = 0; k < MIN_CELLS_PER_PARTITION; k++){
-      delete[] adjv[k];
-    }
-    */
     delete[] adjv;
     delete[] adjc;
     delete[] f;
