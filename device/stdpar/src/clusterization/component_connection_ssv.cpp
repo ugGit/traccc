@@ -385,7 +385,7 @@ void fast_sv_kernel(
    * Start running the work in different kernels using std par.
    */
   std::for_each_n(std::execution::par, counting_iterator(0), partitions->size(), // TODO: should be std::execution::par
-    [=](unsigned int i){;
+    [=](unsigned int i){
     /*
      * Seek the correct cell region in the input data. Again, this is all a
      * contiguous block of memory for now, and we use the blocks array to
