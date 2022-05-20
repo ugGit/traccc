@@ -409,8 +409,8 @@ void fast_sv_kernel(
      * many adjacent cells there are (i.e. adjc[i] determines how many of
      * the eight values in adjv[i] are actually meaningful).
      */
-    auto adjv = new index_t[MIN_CELLS_PER_PARTITION][8];
-    auto adjc = new unsigned char[MIN_CELLS_PER_PARTITION];
+    auto adjv = new index_t[cells.size][8];
+    auto adjc = new unsigned char[cells.size];
 
     /*
      * This loop initializes the adjacency cache, which essentially
