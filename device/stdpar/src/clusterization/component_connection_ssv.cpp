@@ -554,10 +554,6 @@ std::vector<details::ccl_partition> partition(
 }
 }  // namespace details
 
-
-
-
-
 host_measurement_container component_connection_ssv::operator()(
     const host_cell_container& data) const {
     // TODO: replace with call to host_cell_container.size() once code is working
