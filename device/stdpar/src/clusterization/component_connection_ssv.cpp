@@ -322,7 +322,7 @@ void aggregate_clusters(const cell_container &cells,
              * for position and add them to our accumulators.
              */
             if (f[j] == i) {
-                float w = cells.activation[j];
+                double w = cells.activation[j]; // TODO: in CUDA code, this is a float. Here it causes problems with some values because of nvc++
 
                 sw += w;
 
