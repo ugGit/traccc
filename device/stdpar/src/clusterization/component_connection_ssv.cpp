@@ -501,10 +501,15 @@ void fast_sv_kernel(
  * This implementation uses already the flattened data compared to the CUDA version.
  */
 std::vector<details::ccl_partition> partition(
-    channel_id *channel1, std::size_t n_cells) {
+    channel_id *channel1, geometry_id *module_id, std::size_t n_cells) {
     std::vector<details::ccl_partition> partitions;
     std::size_t index = 0;
     std::size_t size = 0;
+
+    /*
+     * Keep track of geometry id to create partition if modules change (if adequate)
+     */
+    geometry_id current_geometry = 0;
 
     /*
      * We start at 0 since this is the origin of the local coordinate 
@@ -519,12 +524,13 @@ std::vector<details::ccl_partition> partition(
         /*
          * Create a new partition if an "empty" row is detected. A row 
          * is considered "empty" if the channel1 values between two 
-         * consecutive cells have a difference > 1.
+         * consecutive cells have a difference > 1. Another criteria is if 
+         * the cells of a new partition are starting to be treated.
          * To prevent creating many small partitions, the current partition
          * must have at least twice the size of threads per block. This 
          * guarantees that each thread handles later at least two cells.
          */
-        if (channel1[i] > last_mid + 1 && size >= MAX_CELLS_PER_PARTITION) {
+        if ((channel1[i] > last_mid + 1 || module_id[i] != current_geometry) && size >= MAX_CELLS_PER_PARTITION) {
             partitions.push_back(
                 details::ccl_partition{.start = index, .size = size});
 
@@ -532,6 +538,7 @@ std::vector<details::ccl_partition> partition(
             size = 0;
         }
 
+        current_geometry = module_id[i];
         last_mid = channel1[i];
         size += 1;
     }
@@ -604,7 +611,7 @@ host_measurement_container component_connection_ssv::operator()(
      * Run the partitioning algorithm sequentially.
      */
     std::vector<details::ccl_partition> partitions = 
-      details::partition(container.channel1, container.size);
+      details::partition(container.channel1, container.module_id, container.size);
     
     /*
      * Reserve space for the result of the algorithm. Currently, there is 
