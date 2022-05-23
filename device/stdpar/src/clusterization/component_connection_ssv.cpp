@@ -279,6 +279,116 @@ void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
 }
 
 /*
+ * Implementation of a SV algorithm with the following steps:
+ *   1) stochastic hooking to parent cell in new cluster
+ *   2) aggressive hooking
+ *   3) shortcutting
+ *
+ * The implementation corresponds to Algorithm 2 of the following paper:
+ * https://epubs.siam.org/doi/pdf/10.1137/1.9781611976137.5
+ *
+ * f      = array holding the parent cell ID for the current iteration.
+ * f_next = buffer array holding updated information for the next iteration.
+ */
+__device__ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
+                          index_t adjv[][8], unsigned int size) {
+    /*
+     * The algorithm finishes if an iteration leaves the array for the next
+     * iteration unchanged.
+     * This varible will be set if a change is made, and dictates if another
+     * loop is necessary.
+     */
+    bool *f_next_changed = new bool();
+
+    do {
+        /*
+         * Reset the end-parameter to false, so we can set it to true if we
+         * make a change to the f_next array.
+         */
+        *f_next_changed = false;
+
+        /*
+         * The algorithm executes in a loop of four distinct parallel
+         * stages. In this first one, stochastic hooking, we examine the
+         * grandparents of adjacent cells and copy cluster ID if it
+         * is lower than our, essentially merging the two together.
+         */
+        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+          [=](unsigned int i){
+            for (unsigned char k = 0; k < adjc[i]; ++k) {
+              index_t q = f[f[adjv[i][k]]];
+
+              if (q < f_next[f[i]]) {
+                  // hook to grandparent of adjacent cell
+                  f_next[f[i]] = q;
+                  *f_next_changed = true;
+              }
+            }
+        });
+
+        /*
+         * Synchronize before the next stage.
+         */
+        __syncthreads();
+
+        /*
+         * The second stage performs aggressive hooking, during which each
+         * cell might be hooked to the grand parent of an adjacent cell.
+         */
+        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+          [=](unsigned int i){
+            for (unsigned char k = 0; k < adjc[i]; ++k) {
+                index_t q = f[f[adjv[i][k]]];
+
+                if (q < f_next[i]) {
+                    f_next[i] = q;
+                    *f_next_changed = true;
+                }
+            }
+        });
+
+        /*
+         * Synchronize before the next stage.
+         */
+        __syncthreads();
+
+        /*
+         * The third stage is shortcutting, which is an optimisation that
+         * allows us to look at any shortcuts in the cluster IDs that we
+         * can merge without adjacency information.
+         */
+        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+          [=](unsigned int i){
+            if (f[f[i]] < f_next[i]) {
+                f_next[i] = f[f[i]];
+                *f_next_changed = true;
+            }
+        });
+
+        /*
+         * Synchronize before the final stage.
+         */
+        __syncthreads();
+
+        /*
+         * Update the array for the next generation.
+         */
+        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+          [=](unsigned int i){
+            f[i] = f_next[i];
+        });
+
+        /*
+         * To determine whether we need another iteration, we use block
+         * voting mechanics. Each thread checks if it has made any changes
+         * to the arrays, and votes. If any thread votes true, all threads
+         * will return a true value and go to the next iteration. Only if
+         * all threads return false will the loop exit.
+         */
+    } while (__syncthreads_or(*f_next_changed));
+}
+
+/*
  * Aggregate the information of all cells within a cluster to a single measurement.
  */
 void aggregate_clusters(const cell_container &cells,
@@ -442,7 +552,7 @@ void fast_sv_kernel(
     /*
      * Now we move onto the actual processing part.
      */
-    details::simplified_sv(f, gf, adjc, adjv, cells.size);
+    details::fast_sv_2(f, gf, adjc, adjv, cells.size);
 
     /*
      * Count the number of clusters by checking how many nodes have
