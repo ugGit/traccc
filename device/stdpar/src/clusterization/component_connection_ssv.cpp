@@ -342,7 +342,7 @@ __device__ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
 
                 if (q < f_next[i]) {
                     f_next[i] = q;
-                    *f_next_changed = true;
+                    *f_next_changed = true; // TODO: verify that this actually should be triggered (only changes to grandparents should be tracked)
                 }
             }
         });
