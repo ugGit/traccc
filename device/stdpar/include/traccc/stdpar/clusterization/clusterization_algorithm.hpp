@@ -41,25 +41,64 @@ class clusterization_algorithm
     output_type operator()(
         const host_cell_container& cells_per_event) const override {
 
-        output_type measurements_per_event(&m_mr.get());
+        cell_module* data_header_array = cells_per_event.get_headers().data();
+        vecmem::vector<cell>* data_items_array = cells_per_event.get_items().data();
+        unsigned int nbr_of_modules = cells_per_event.size();
 
-        measurements_per_event.reserve(cells_per_event.size());
+        // TODO: parition the problem here, use the algo from CUDA, as this operates on traccc EDM an not flattened arrays
 
-        for (std::size_t i = 0; i < cells_per_event.size(); ++i) {
-            auto module = cells_per_event.at(i).header;
+        // reserve as much space as there are modules
+        cell_module* output_header_array = new cell_module[nbr_of_modules];
+        measurement** output_items_array = new measurement*[nbr_of_modules];
+        unsigned int* output_num_measurments_array = new unsigned int[nbr_of_modules];
 
-            // The algorithmic code part: start
-            traccc::host_cluster_container clusters = cc->operator()(
-                cells_per_event.at(i).items, cells_per_event.at(i).header);
-            for (auto& cl_id : clusters.get_headers()) {
-                cl_id.pixel = module.pixel;
-            }
-            traccc::host_measurement_collection measurements_per_module =
-                mt->operator()(clusters, module);
+        // TODO: should not be necessary. Default constructs way to many measurements
+        // init the output_items_array to welcome in the worst case as many measurements as there are activations in the module
+        for(int i=0; i < nbr_of_modules; i++){
+          output_items_array[i] = new measurement[data.at(i).items.size()];
+        }
 
-            // The algorithmnic code part: end
-            measurements_per_event.push_back(
-                module, std::move(measurements_per_module));
+        /*
+         * Execute the CCA algorithm
+         */
+        std::for_each_n(std::execution::par, counting_iterator(0), nbr_of_modules, [=](unsigned int i){
+          // prepare container to store results
+          cluster_element* cluster_container; // init in sequential_ccl
+          measurement* measurement_collection; // init in sequential_measurement_creation
+          unsigned int num_clusters = 0;
+
+          auto module = data_header_array[i];
+
+          // The algorithmic code part: start
+          cc->operator()(
+                cells_per_event.at(i).items, cells_per_event.at(i).header)
+          sequential_ccl<vecmem::vector>(data_items_array[i], module, cluster_container, num_clusters);
+
+          for(int j = 0; j < num_clusters; j++){
+            cluster_container[j].header.pixel = module.pixel;
+            cluster_container[j].header.placement = module.placement;
+          }
+
+          sequential_measurement_creation(cluster_container, module, num_clusters, measurement_collection);
+          // The algorithmnic code part: end
+            
+          output_header_array[i] = module; // TODO: check if this is right, because we set placement and pixel to cluster container earlier
+          for(int j=0; j < num_clusters; j++){
+            output_items_array[i][j] = measurement_collection[j]; // TODO: might use a std::move
+          }
+          output_num_measurments_array[i] = num_clusters;
+        });
+
+        /*
+         * Convert data back to expected traccc EDM format
+         */
+        output_type measurements_per_event; // TODO: removed (&m_mr.get()) of constructor;
+        measurements_per_event.reserve(nbr_of_modules); // reserve enough space
+        for(int i=0; i < nbr_of_modules; i++){
+          if(output_num_measurments_array[i] == 0) continue;
+          // copy array to vector
+          vecmem::vector<measurement> items (output_items_array[i], output_items_array[i] + output_num_measurments_array[i]);
+          measurements_per_event.push_back(std::move(output_header_array[i]), std::move(items));
         }
 
         return measurements_per_event;
