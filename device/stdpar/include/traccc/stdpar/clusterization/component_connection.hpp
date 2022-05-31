@@ -79,39 +79,46 @@ class component_connection
     private:
     /// Implementation for the public cell collection creation operators
     template <template <typename> class vector_type>
+    /* TODO: update function call to work with arrays
     host_cluster_container operator()(const cell_collection<vector_type>& cells,
                                       const cell_module& module) const {
         host_cluster_container clusters(&m_mr.get());
         this->operator()<vector_type>(cells, module, clusters);
         return clusters;
     }
+    */
 
     /// Implementation for the public cell collection creation operators
     template <template <typename> class vector_type>
     void operator()(const cell_collection<vector_type>& cells,
                     const cell_module& module,
-                    host_cluster_container& clusters) const {
-
+                    cluster_element*& clusters,
+                    unsigned int& num_clusters) {
         // Run the algorithm
-        unsigned int num_clusters = 0;
-        vector_type<unsigned int> connected_cells(cells.size(), &m_mr.get());
-        detail::sparse_ccl<vector_type, traccc::cell>(cells, connected_cells,
-                                                      num_clusters);
+        unsigned int* cluster_sizes = new unsigned int[cells.size()]{}; // initialize values at 0
+        unsigned int *connected_cells = new unsigned int[cells.size()];
+        
+        detail::sparse_ccl<vector_type, cell>(cells, connected_cells, cells.size(),
+                                                      num_clusters, cluster_sizes);
 
-        clusters.resize(num_clusters);
-        for (auto& cl_id : clusters.get_headers()) {
-            cl_id.module = module.module;
-            cl_id.placement = module.placement;
+        clusters = new cluster_element[num_clusters];
+        for(int i = 0; i < num_clusters; i++){
+          clusters[i].header.module = module.module;
+          clusters[i].header.placement = module.placement;
+          // initialize the items arrays and store size information
+          clusters[i].items = new cell[cluster_sizes[i]];
+          clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]
         }
 
-        auto& cluster_items = clusters.get_items();
-        unsigned int icell = 0;
-        for (auto cell_label : connected_cells) {
-            auto cindex = static_cast<unsigned int>(cell_label - 1);
-            if (cindex < cluster_items.size()) {
-                cluster_items[cindex].push_back(cells[icell++]);
-            }
+        for(int i = 0; i < cells.size(); i++){
+          // get the cluster label info for the current cell
+          unsigned int k = connected_cells[i]; 
+          // assign add the cell to the cluster, and increase the current index for this cluster
+          clusters[k].items[clusters[k].items_size++] = cells[i];
         }
+
+        delete[] connected_cells;
+        delete[] cluster_sizes;
     }
 
     private:
@@ -119,4 +126,4 @@ class component_connection
 
 };  // class component_connection
 
-}  // namespace traccc
+}  // namespace traccc::stdpar
