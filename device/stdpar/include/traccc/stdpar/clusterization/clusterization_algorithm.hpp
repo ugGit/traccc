@@ -42,11 +42,13 @@ class clusterization_algorithm
     output_type operator()(
         const host_cell_container& cells_per_event) const override {
 
+        // start data transformation
         unsigned int nbr_of_modules = cells_per_event.size();
         cell_module* data_header_array = new cell_module[nbr_of_modules];
         const vecmem::vector<cell>* vecmem_items = cells_per_event.get_items().data();
         cell** data_items_array = new cell*[nbr_of_modules];
         unsigned int* data_items_array_sizes = new unsigned int[nbr_of_modules];
+        // copy the entire vector to a structure accessible from within stdpar loop
         for(int i=0; i < nbr_of_modules; i++) {
           data_header_array[i] = cells_per_event.get_headers().at(i);
           data_items_array_sizes[i] = vecmem_items[i].size();
@@ -63,7 +65,7 @@ class clusterization_algorithm
         measurement** output_items_array = new measurement*[nbr_of_modules];
         unsigned int* output_num_measurments_array = new unsigned int[nbr_of_modules];
 
-        // TODO: should not be necessary. Default constructs way to many measurements
+        // TODO: should not be necessary, but it is as the arrays can't be initialized within stdpar loop. Default constructs way to many measurements. 
         // init the output_items_array to welcome in the worst case as many measurements as there are activations in the module
         for(int i=0; i < nbr_of_modules; i++){
           output_items_array[i] = new measurement[cells_per_event.at(i).items.size()];
@@ -102,15 +104,23 @@ class clusterization_algorithm
          * Convert data back to expected traccc EDM format
          */
         output_type measurements_per_event(&m_mr.get());
-        
         measurements_per_event.reserve(nbr_of_modules); // reserve enough space
-        
         for(int i=0; i < nbr_of_modules; i++){
           if(output_num_measurments_array[i] == 0) continue;
           // copy array to vector
           vecmem::vector<measurement> items (output_items_array[i], output_items_array[i] + output_num_measurments_array[i]);
           measurements_per_event.push_back(std::move(output_header_array[i]), std::move(items));
         }
+
+        /*
+         * Clean up used data structures
+         */
+        delete[] output_header_array;
+        for(int i=0; i < nbr_of_modules; i++){
+          delete[] output_items_array[i];
+        }
+        delete[] output_items_array;
+        delete[] output_num_measurments_array;
 
         return measurements_per_event;
     }
