@@ -43,11 +43,12 @@ class clusterization_algorithm
         const host_cell_container& cells_per_event) const override {
 
         unsigned int nbr_of_modules = cells_per_event.size();
-        const cell_module* data_header_array = cells_per_event.get_headers().data();
+        cell_module* data_header_array = new cell_module[nbr_of_modules];
         const vecmem::vector<cell>* vecmem_items = cells_per_event.get_items().data();
         cell** data_items_array = new cell*[nbr_of_modules];
         unsigned int* data_items_array_sizes = new unsigned int[nbr_of_modules];
         for(int i=0; i < nbr_of_modules; i++) {
+          data_header_array[i] = cells_per_event.get_headers().at(i);
           data_items_array_sizes[i] = vecmem_items[i].size();
           data_items_array[i] = new cell[vecmem_items[i].size()]; 
           for(int j=0; j < vecmem_items[i].size(); j++) {
@@ -68,16 +69,20 @@ class clusterization_algorithm
           output_items_array[i] = new measurement[cells_per_event.at(i).items.size()];
         }
 
+        printf("Start CCA\n");
+
         /*
          * Execute the CCA algorithm
          */
-        std::for_each_n(std::execution::par, counting_iterator(0), nbr_of_modules, [=](unsigned int i){
+        std::for_each_n(std::execution::par, counting_iterator(0), 1, [=](unsigned int i){// nbr_of_modules, [=](unsigned int i){
           // prepare container to store results
           cluster_element* cluster_container; // init in sequential_ccl
           measurement* measurement_collection; // init in sequential_measurement_creation
           unsigned int num_clusters = 0;
+
           auto module = data_header_array[i];
 
+          printf("Start CC\n");
           // The algorithmic code part: start
           cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container, num_clusters);
 
