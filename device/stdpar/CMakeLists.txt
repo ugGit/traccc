@@ -24,8 +24,8 @@ traccc_add_library( ${LIB} stdpar TYPE SHARED
   "include/traccc/stdpar/clusterization/component_connection.hpp"
   "include/traccc/stdpar/clusterization/component_connection_ssv.hpp"
   "include/traccc/stdpar/clusterization/clusterization_algorithm.hpp"
-  "include/traccc/stdpar/clusterization/details/sparse_ccl.hpp"
-  "include/traccc/stdpar/clusterization/details/cluster_element.hpp"
+  "include/traccc/stdpar/clusterization/detail/sparse_ccl.hpp"
+  "include/traccc/stdpar/clusterization/detail/cluster_element.hpp"
   # implementation files
   "src/clusterization/test.cpp"
   "src/clusterization/component_connection_ssv.cpp"
