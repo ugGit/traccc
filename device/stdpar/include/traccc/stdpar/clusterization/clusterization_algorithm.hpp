@@ -69,8 +69,6 @@ class clusterization_algorithm
           output_items_array[i] = new measurement[cells_per_event.at(i).items.size()];
         }
 
-        printf("Start CCA\n");
-
         /*
          * Execute the CCA algorithm
          */
@@ -82,7 +80,6 @@ class clusterization_algorithm
 
           auto module = data_header_array[i];
 
-          printf("Start CC %d\n", i);
           // The algorithmic code part: start
           cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container, num_clusters);
 
@@ -91,7 +88,6 @@ class clusterization_algorithm
             cluster_container[j].header.placement = module.placement;
           }
 
-          printf("Start MT %d\n", i);
           mt->operator()(cluster_container, module, num_clusters, measurement_collection);
           // The algorithmnic code part: end
 
@@ -100,7 +96,6 @@ class clusterization_algorithm
             output_items_array[i][j] = measurement_collection[j]; // TODO: might use a std::move
           }
           output_num_measurments_array[i] = num_clusters;
-          printf("Finish MT %d\n", i);
         });
 
         /*
@@ -108,7 +103,6 @@ class clusterization_algorithm
          */
         output_type measurements_per_event(&m_mr.get());
         
-        printf("Start copy back values to vector\n");
         measurements_per_event.reserve(nbr_of_modules); // reserve enough space
         
         for(int i=0; i < nbr_of_modules; i++){
@@ -117,8 +111,6 @@ class clusterization_algorithm
           vecmem::vector<measurement> items (output_items_array[i], output_items_array[i] + output_num_measurments_array[i]);
           measurements_per_event.push_back(std::move(output_header_array[i]), std::move(items));
         }
-
-        printf("End CCA\n");
 
         return measurements_per_event;
     }

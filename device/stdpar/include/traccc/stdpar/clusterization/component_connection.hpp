@@ -98,8 +98,6 @@ class component_connection
         unsigned int* cluster_sizes = new unsigned int[number_of_cells]{}; // initialize values at 0
         unsigned int *connected_cells = new unsigned int[number_of_cells];
         
-
-        printf("Start SparseCCL\n");
         detail::sparse_ccl(cells, connected_cells, number_of_cells,
                            num_clusters, cluster_sizes);
 
@@ -112,7 +110,6 @@ class component_connection
           clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]
         }
 
-        printf("Copy back results\n");
         for(int i = 0; i < number_of_cells; i++){
           // get the cluster label info for the current cell
           unsigned int k = connected_cells[i]; 
