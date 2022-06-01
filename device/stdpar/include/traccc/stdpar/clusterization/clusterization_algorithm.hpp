@@ -15,7 +15,7 @@
 #include "traccc/edm/spacepoint.hpp"
 
 // clusterization
-#include "traccc/stdpar/clusterization/details/cluster_element.hpp"
+#include "traccc/stdpar/clusterization/detail/cluster_element.hpp"
 #include "traccc/stdpar/clusterization/component_connection.hpp"
 #include "traccc/stdpar/clusterization/measurement_creation.hpp"
 #include "traccc/stdpar/clusterization/spacepoint_formation.hpp"
@@ -67,7 +67,7 @@ class clusterization_algorithm
           cluster_element* cluster_container; // init in sequential_ccl
           measurement* measurement_collection; // init in sequential_measurement_creation
           unsigned int num_clusters = 0;
-
+/*
           auto module = data_header_array[i];
 
           // The algorithmic code part: start
@@ -86,11 +86,13 @@ class clusterization_algorithm
             output_items_array[i][j] = measurement_collection[j]; // TODO: might use a std::move
           }
           output_num_measurments_array[i] = num_clusters;
+*/          
         });
 
         /*
          * Convert data back to expected traccc EDM format
          */
+        /*
         output_type measurements_per_event; // TODO: removed (&m_mr.get()) of constructor;
         measurements_per_event.reserve(nbr_of_modules); // reserve enough space
         for(int i=0; i < nbr_of_modules; i++){
@@ -99,7 +101,7 @@ class clusterization_algorithm
           vecmem::vector<measurement> items (output_items_array[i], output_items_array[i] + output_num_measurments_array[i]);
           measurements_per_event.push_back(std::move(output_header_array[i]), std::move(items));
         }
-
+*/
         return measurements_per_event;
     }
 
