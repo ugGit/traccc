@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "traccc/clusterization/detail/sparse_ccl.hpp"
+#include "traccc/stdpar/clusterization/detail/sparse_ccl.hpp"
 #include "traccc/stdpar/clusterization/detail/cluster_element.hpp"
 #include "traccc/edm/cell.hpp"
 #include "traccc/edm/cluster.hpp"
@@ -80,15 +80,14 @@ class component_connection
     private:
     /// Implementation for the public cell collection creation operators
     template <template <typename> class vector_type>
-    /* TODO: update function call to work with arrays
     host_cluster_container operator()(const cell_collection<vector_type>& cells,
                                       const cell_module& module) const {
         host_cluster_container clusters(&m_mr.get());
-        this->operator()<vector_type>(cells, module, clusters);
+        // this->operator()<vector_type>(cells, module, clusters);
         return clusters;
     }
-    */
 
+    public:
     /// Implementation for the public cell collection creation operators
     template <template <typename> class vector_type>
     void operator()(const cell_collection<vector_type>& cells,
