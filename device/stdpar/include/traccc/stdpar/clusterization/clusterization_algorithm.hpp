@@ -15,6 +15,7 @@
 #include "traccc/edm/spacepoint.hpp"
 
 // clusterization
+#include "traccc/stdpar/clusterization/details/cluster_element.hpp"
 #include "traccc/stdpar/clusterization/component_connection.hpp"
 #include "traccc/stdpar/clusterization/measurement_creation.hpp"
 #include "traccc/stdpar/clusterization/spacepoint_formation.hpp"
@@ -70,16 +71,14 @@ class clusterization_algorithm
           auto module = data_header_array[i];
 
           // The algorithmic code part: start
-          cc->operator()(
-                cells_per_event.at(i).items, cells_per_event.at(i).header)
-          sequential_ccl<vecmem::vector>(data_items_array[i], module, cluster_container, num_clusters);
+          cc->operator()(data_items_array[i], module, cluster_container, num_clusters)
 
           for(int j = 0; j < num_clusters; j++){
             cluster_container[j].header.pixel = module.pixel;
             cluster_container[j].header.placement = module.placement;
           }
 
-          sequential_measurement_creation(cluster_container, module, num_clusters, measurement_collection);
+          mt->operator()(cluster_container, module, num_clusters, measurement_collection);
           // The algorithmnic code part: end
             
           output_header_array[i] = module; // TODO: check if this is right, because we set placement and pixel to cluster container earlier

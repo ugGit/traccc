@@ -8,6 +8,7 @@
 #pragma once
 
 // #include "traccc/stdpar/clusterization/measurement_creation_helper.hpp"
+#include "traccc/stdpar/clusterization/details/cluster_element.hpp"
 #include "traccc/definitions/primitives.hpp"
 #include "traccc/edm/cell.hpp"
 #include "traccc/edm/cluster.hpp"

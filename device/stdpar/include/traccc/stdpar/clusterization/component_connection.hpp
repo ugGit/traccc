@@ -8,6 +8,7 @@
 #pragma once
 
 #include "traccc/clusterization/detail/sparse_ccl.hpp"
+#include "traccc/stdpar/clusterization/details/cluster_element.hpp"
 #include "traccc/edm/cell.hpp"
 #include "traccc/edm/cluster.hpp"
 #include "traccc/utils/algorithm.hpp"
