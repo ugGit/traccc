@@ -89,17 +89,17 @@ class component_connection
 
     public:
     /// Implementation for the public cell collection creation operators
-    template <template <typename> class vector_type>
-    void operator()(const cell_collection<vector_type>& cells,
+    void operator()(const cell* cells,
+                    unsigned int number_of_cells,
                     const cell_module& module,
                     cluster_element*& clusters,
                     unsigned int& num_clusters) {
         // Run the algorithm
-        unsigned int* cluster_sizes = new unsigned int[cells.size()]{}; // initialize values at 0
-        unsigned int *connected_cells = new unsigned int[cells.size()];
+        unsigned int* cluster_sizes = new unsigned int[number_of_cells]{}; // initialize values at 0
+        unsigned int *connected_cells = new unsigned int[number_of_cells];
         
-        detail::sparse_ccl<vector_type, cell>(cells, connected_cells, cells.size(),
-                                                      num_clusters, cluster_sizes);
+        detail::sparse_ccl(cells, connected_cells, number_of_cells,
+                           num_clusters, cluster_sizes);
 
         clusters = new cluster_element[num_clusters];
         for(int i = 0; i < num_clusters; i++){
@@ -110,7 +110,7 @@ class component_connection
           clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]
         }
 
-        for(int i = 0; i < cells.size(); i++){
+        for(int i = 0; i < number_of_cells; i++){
           // get the cluster label info for the current cell
           unsigned int k = connected_cells[i]; 
           // assign add the cell to the cluster, and increase the current index for this cluster

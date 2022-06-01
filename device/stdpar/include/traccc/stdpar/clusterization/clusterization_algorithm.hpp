@@ -42,9 +42,18 @@ class clusterization_algorithm
     output_type operator()(
         const host_cell_container& cells_per_event) const override {
 
-        const cell_module* data_header_array = cells_per_event.get_headers().data();
-        const vecmem::vector<cell>* data_items_array = cells_per_event.get_items().data();
         unsigned int nbr_of_modules = cells_per_event.size();
+        const cell_module* data_header_array = cells_per_event.get_headers().data();
+        const vecmem::vector<cell>* vecmem_items = cells_per_event.get_items().data();
+        cell** data_items_array = new cell*[nbr_of_modules];
+        unsigned int* data_items_array_sizes = new unsigned int[nbr_of_modules];
+        for(int i=0; i < nbr_of_modules; i++) {
+          data_items_array_sizes[i] = vecmem_items[i].size();
+          data_items_array[i] = new cell[vecmem_items[i].size()]; 
+          for(int j=0; j < vecmem_items[i].size(); j++) {
+            data_items_array[i][j] = vecmem_items[i][j];
+          }
+        }
 
         // TODO: parition the problem here, use the algo from CUDA, as this operates on traccc EDM an not flattened arrays
 
@@ -70,7 +79,7 @@ class clusterization_algorithm
           auto module = data_header_array[i];
 
           // The algorithmic code part: start
-          cc->operator()<vecmem::vector>(data_items_array[i], module, cluster_container, num_clusters);
+          cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container, num_clusters);
 
 /*
           for(int j = 0; j < num_clusters; j++){
