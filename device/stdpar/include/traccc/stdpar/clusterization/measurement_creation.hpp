@@ -83,10 +83,9 @@ struct measurement_creation
     host_measurement_collection operator()(
         const host_cluster_container &c, const cell_module &m) const override {
         output_type measurements;
-        this->operator()(c, m, measurements);
+        // this->operator()(c, m, measurements);
         return measurements;
     }
-
     /// Callable operator for the connected component, based on one single
     /// module
     ///

@@ -14,6 +14,7 @@
 // algorithms
 #include "traccc/stdpar/clusterization/test.hpp"
 #include "traccc/stdpar/clusterization/clusterization_algorithm.hpp"
+#include "traccc/clusterization/spacepoint_formation.hpp"
 
 // options
 #include "traccc/options/common_options.hpp"
@@ -47,9 +48,8 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
     // Memory resource used by the EDM.
     vecmem::host_memory_resource host_mr;  
 
-    // check if clusterization algo must be called created on heap or not
-
-    traccc::stdpar::clusterization_algorithm *ca = new traccc::stdpar::clusterization_algorithm(host_mr);
+    traccc::stdpar::clusterization_algorithm ca(host_mr);
+    traccc::spacepoint_formation sf(host_mr);
 
     // Loop over events
     for (unsigned int event = common_opts.skip;
@@ -65,9 +65,13 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
             Clusterization
           -------------------*/
 
-        auto ca_result = (*ca)(cells_per_event);
-        auto& measurements_per_event = ca_result.first;
-        auto& spacepoints_per_event = ca_result.second;
+        auto measurements_per_event = ca(cells_per_event);
+
+        /*------------------------
+            Spacepoint formation
+          ------------------------*/
+
+        auto spacepoints_per_event = sf(measurements_per_event);
 
         std::cout << "----------\n";
         std::cout << "Data of spacepoint for validation:\n";
