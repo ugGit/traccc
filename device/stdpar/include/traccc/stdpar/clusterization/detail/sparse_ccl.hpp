@@ -81,8 +81,7 @@ inline bool is_far_enough(traccc::cell a, traccc::cell b) {
 /// belongs to)
 /// @param labels is the number of clusters found
 /// @param cluster_sizes stores the number of cells of cluster with index i
-template <template <typename> class vector_t, typename cell_t>
-inline void sparse_ccl(const vector_t<cell_t>& cells,
+inline void sparse_ccl(const cell *cells,
                        unsigned int *L, int size,
                        unsigned int& labels,
                        unsigned int *cluster_sizes) {
