@@ -1,8 +1,11 @@
+
+#pragma once
+
 #include "traccc/edm/cell.hpp"
 #include "traccc/edm/cluster.hpp"
 
 struct cluster_element{
-  cluster_id header;
-  cell* items;
+  traccc::cluster_id header;
+  traccc::cell* items;
   unsigned int items_size;
 };
