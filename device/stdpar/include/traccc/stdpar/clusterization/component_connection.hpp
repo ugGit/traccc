@@ -105,6 +105,7 @@ class component_connection
         for(int i = 0; i < num_clusters; i++){
           clusters[i].header.module = module.module;
           clusters[i].header.placement = module.placement;
+          clusters[i].header.pixel = module.pixel;
           // initialize the items arrays and store size information
           clusters[i].items = new cell[cluster_sizes[i]];
           clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]
