@@ -42,38 +42,8 @@ class spacepoint_formation : public algorithm<spacepoint_container_types::host(
     /// @return A spacepoint container, with one spacepoint for every
     ///         measurement
     ///
-<<<<<<< HEAD
     output_type operator()(
         const measurement_container_types::host& measurements) const override;
-=======
-    /// @return a measurement collection - size of input/output container is
-    /// identical
-    output_type operator()(const host_measurement_container&
-                               measurements_per_event) const override {
-        output_type spacepoints_per_event(measurements_per_event.size(),
-                                          &m_mr.get());
-
-        // Run the algorithm
-        for (std::size_t i = 0; i < measurements_per_event.size(); ++i) {
-            const auto& module = measurements_per_event.at(i).header;
-            const auto& measurements_per_module =
-                measurements_per_event.at(i).items;
-            auto& spacepoints_per_module = spacepoints_per_event.at(i).items;
-            spacepoints_per_module.reserve(measurements_per_module.size());
-
-            for (const auto& m : measurements_per_module) {
-
-                point3 local_3d = {m.local[0], m.local[1], 0.};
-                point3 global = module.placement.point_to_global(local_3d);
-                spacepoint s({global, m});
-
-                spacepoints_per_module.push_back(std::move(s));
-            }
-        }
-
-        return spacepoints_per_event;
-    }
->>>>>>> validate results with seq algo
 
     private:
     std::reference_wrapper<vecmem::memory_resource> m_mr;
