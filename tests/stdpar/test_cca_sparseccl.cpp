@@ -16,7 +16,7 @@ namespace {
 vecmem::host_memory_resource resource;
 traccc::stdpar::clusterization_algorithm cca(resource);
 
-cca_function_t f = [](const traccc::host_cell_container &data) {
+cca_function_t f = [](const traccc::cell_container_types::host &data) {
     std::map<traccc::geometry_id, std::vector<traccc::measurement>> result;
 
     traccc::host_measurement_container mss = cca(data);

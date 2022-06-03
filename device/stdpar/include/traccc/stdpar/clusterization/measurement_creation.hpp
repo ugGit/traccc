@@ -61,7 +61,7 @@ inline void calc_cluster_properties(
 
 /// Connected component labeling.
 struct measurement_creation
-    : public algorithm<host_measurement_collection(
+    : public algorithm<measurement_container_types::host(
           const host_cluster_container &, const cell_module &)> {
     public:
     /// Constructor for measurement_creation
@@ -80,7 +80,7 @@ struct measurement_creation
     ///
     /// @return a measurement collection - usually same size or sometime
     /// slightly smaller than the input
-    host_measurement_collection operator()(
+    measurement_container_types::host operator()(
         const host_cluster_container &c, const cell_module &m) const override {
         output_type measurements;
         // this->operator()(c, m, measurements);
