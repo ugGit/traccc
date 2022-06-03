@@ -20,33 +20,33 @@ namespace traccc::stdpar {
 
 /// Function used for retrieving the cell signal based on the module id
 inline scalar signal_cell_modelling(scalar signal_in,
-                                    const cluster_id& /*cl_id*/) {
+                                    const cell_module& /*module*/) {
     return signal_in;
 }
 
 /// Function for pixel segmentation
-inline vector2 position_from_cell(cell c, cluster_id cl_id) {
+inline vector2 position_from_cell(cell c, cell_module module) {
     // Retrieve the specific values based on module idx
-    return {cl_id.pixel.min_center_x + c.channel0 * cl_id.pixel.pitch_x,
-            cl_id.pixel.min_center_y + c.channel1 * cl_id.pixel.pitch_y};
+    return {module.pixel.min_center_x + c.channel0 * module.pixel.pitch_x,
+            module.pixel.min_center_y + c.channel1 * module.pixel.pitch_y};
 }
 
-inline vector2 get_pitch(cluster_id cl_id) {
+inline vector2 get_pitch(cell_module module) {
     // return the values based on the module idx
-    return {cl_id.pixel.pitch_x, cl_id.pixel.pitch_y};
+    return {module.pixel.pitch_x, module.pixel.pitch_y};
 }
 
 /// Function used for calculating the properties of the cluster inside
 /// measurement creation
 inline void calc_cluster_properties(
-    cell* cluster, unsigned int cluster_size, const cluster_id& cl_id, point2& mean,
+    cell* cluster, unsigned int cluster_size, const cell_module& module, point2& mean,
     point2& var, scalar& totalWeight) {
     for(int j=0; j < cluster_size; j++){
         const auto& cell = cluster[j];
-        scalar weight = signal_cell_modelling(cell.activation, cl_id);
-        if (weight > cl_id.threshold) {
+        scalar weight = signal_cell_modelling(cell.activation, module);
+        if (weight > module.threshold) {
             totalWeight += cell.activation;
-            const point2 cell_position = position_from_cell(cell, cl_id);
+            const point2 cell_position = position_from_cell(cell, module);
             const point2 prev = mean;
             const point2 diff = cell_position - prev;
 
@@ -62,7 +62,7 @@ inline void calc_cluster_properties(
 /// Connected component labeling.
 struct measurement_creation
     : public algorithm<measurement_container_types::host(
-          const host_cluster_container &, const cell_module &)> {
+          const cluster_container_types::host &, const cell_module &)> {
     public:
     /// Constructor for measurement_creation
     ///
@@ -81,7 +81,7 @@ struct measurement_creation
     /// @return a measurement collection - usually same size or sometime
     /// slightly smaller than the input
     measurement_container_types::host operator()(
-        const host_cluster_container &c, const cell_module &m) const override {
+        const cluster_container_types::host &c, const cell_module &m) const override {
         output_type measurements;
         // this->operator()(c, m, measurements);
         return measurements;
@@ -127,10 +127,9 @@ struct measurement_creation
             }
 
             // Get the cluster id for this module
-            const auto &cl_id = clusters[i].header;
 
             // Calculate the cluster properties        
-            calc_cluster_properties(clusters[i].items, clusters[i].items_size, cl_id, mean,
+            calc_cluster_properties(clusters[i].items, clusters[i].items_size, module, mean,
                                                           var, totalWeight);
 
             if (totalWeight > 0.) {

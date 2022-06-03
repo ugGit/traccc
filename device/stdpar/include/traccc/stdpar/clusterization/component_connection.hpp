@@ -26,9 +26,8 @@ namespace traccc::stdpar {
 /// implementation internally.
 ///
 class component_connection
-    : public algorithm<host_cluster_container(const host_cell_collection&,
-                                              const cell_module&)> {
-    //   public algorithm<host_cluster_container(const device_cell_collection&,
+    : public algorithm<cluster_container_types::host(const cell_container_types::host&)> {
+    //   public algorithm<cluster_container_types::host(const device_cell_collection&,
     //                                           const cell_module&)> {
     public:
     /// Constructor for component_connection
@@ -36,59 +35,15 @@ class component_connection
     /// @param mr is the memory resource
     component_connection(vecmem::memory_resource& mr) : m_mr(mr) {}
 
-    /// @name Operators to use in host code
-    /// @{
-
-    /// Callable operator for the connected component, based on one single
-    /// module
-    ///
-    /// @param cells are the input cells into the connected component, they are
-    ///              per module and unordered
-    /// @param module The description of the module that the cells belong to
-    ///
-    /// c++20 piping interface:
-    /// @return a cluster collection
-    ///
-    host_cluster_container operator()(
-        const host_cell_collection& cells,
-        const cell_module& module) const override {
-        return this->operator()<vecmem::vector>(cells, module);
-    }
-    /// @}
-
-    /// @name Operators to use in device code
-    /// @{
-
-    /// Callable operator for the connected component, based on one single
-    /// module
-    ///
-    /// This version of the function is meant to be used in device code.
-    ///
-    /// @param cells are the input cells into the connected component, they are
-    ///              per module and unordered
-    /// @param module The description of the module that the cells belong to
-    ///
-    /// c++20 piping interface:
-    /// @return a cluster collection
-    ///
-    // host_cluster_container operator()(
-    //     const device_cell_collection& cells,
-    //     const cell_module& module) const override {
-    //     return this->operator()<vecmem::device_vector>(cells, module);
-    // }
-
-    private:
-    /// Implementation for the public cell collection creation operators
-    template <template <typename> class vector_type>
-    host_cluster_container operator()(const cell_collection<vector_type>& cells,
-                                      const cell_module& module) const {
-        host_cluster_container clusters(&m_mr.get());
-        // this->operator()<vector_type>(cells, module, clusters);
-        return clusters;
+    // Placeholder since the calling interface for this algorithm differs.
+    output_type operator()(
+        const cell_container_types::host& cells_per_event) const override {
+        printf("The stdpar version of the component_connection algorithm should not be called through this method!");
+        output_type empty_result;
+        return empty_result;
     }
 
-    public:
-    /// Implementation for the public cell collection creation operators
+    /// Implementation of an stdpar version for the component connection. It differs from the original algorith, but this is how it goes
     void operator()(const cell* cells,
                     unsigned int number_of_cells,
                     const cell_module& module,
@@ -103,9 +58,6 @@ class component_connection
 
         clusters = new cluster_element[num_clusters];
         for(int i = 0; i < num_clusters; i++){
-          clusters[i].header.module = module.module;
-          clusters[i].header.placement = module.placement;
-          clusters[i].header.pixel = module.pixel;
           // initialize the items arrays and store size information
           clusters[i].items = new cell[cluster_sizes[i]];
           clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]

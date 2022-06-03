@@ -26,7 +26,7 @@
 namespace traccc::stdpar {
 
 class clusterization_algorithm
-    : public algorithm<host_measurement_container(const cell_container_types::host&)> {
+    : public algorithm<measurement_container_types::host(const cell_container_types::host&)> {
 
     public:
     /// Constructor for clusterization algorithm
@@ -84,11 +84,6 @@ class clusterization_algorithm
 
           // The algorithmic code part: start
           cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container, num_clusters);
-
-          for(int j = 0; j < num_clusters; j++){
-            cluster_container[j].header.pixel = module.pixel;
-            cluster_container[j].header.placement = module.placement;
-          }
 
           mt->operator()(cluster_container, module, num_clusters, measurement_collection);
           // The algorithmnic code part: end

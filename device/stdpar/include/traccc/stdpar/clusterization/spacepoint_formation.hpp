@@ -21,14 +21,20 @@ namespace traccc::stdpar {
 
 /// Connected component labeling.
 struct spacepoint_formation
-    : public algorithm<host_spacepoint_collection(
-          const cell_module&, const measurement_container_types::host&)> {
+    : public algorithm<spacepoint_container_types::host(const measurement_container_types::host&)> {
 
     public:
     /// Constructor for spacepoint_formation
     ///
     /// @param mr is the memory resource
     spacepoint_formation(vecmem::memory_resource& mr) : m_mr(mr) {}
+
+    // Placeholder to comply with the algorithm interface
+    output_type operator()(
+        const measurement_container_types::host& measurements) const override {
+        output_type empty_result;
+        return empty_result;
+    }
 
     /// Callable operator for the space point formation, based on one single
     /// module
@@ -41,10 +47,10 @@ struct spacepoint_formation
     ///
     /// @return a measurement collection - size of input/output container is
     /// identical
-    output_type operator()(
+    std::vector<spacepoint> operator()( // TODO the output type is substituted currently to prevent compilation problems.
         const cell_module& c,
-        const measurement_container_types::host& m) const override {        
-        output_type spacepoints;
+        const measurement_container_types::host::item_vector::const_reference& m) const {        
+        std::vector<spacepoint> spacepoints;
         this->operator()(c, m, spacepoints);
         return spacepoints;
     }
@@ -61,8 +67,8 @@ struct spacepoint_formation
     /// @return a measurement collection - size of input/output container is
     /// identical
     void operator()(const cell_module& module,
-                    const measurement_container_types::host& measurements,
-                    output_type& spacepoints) const {
+                    const measurement_container_types::host::item_vector::const_reference& measurements,
+                    std::vector<spacepoint>& spacepoints) const {
         // Run the algorithm
         int number_of_measurements = measurements.size();
         measurement *measurements_array = new measurement[number_of_measurements];

@@ -2,10 +2,12 @@
 #pragma once
 
 #include "traccc/edm/cell.hpp"
-#include "traccc/edm/cluster.hpp"
+
+// System include(s).
+#include <cstddef>
 
 struct cluster_element{
-  traccc::cluster_id header;
+  std::size_t header;
   traccc::cell* items;
   unsigned int items_size;
 };
