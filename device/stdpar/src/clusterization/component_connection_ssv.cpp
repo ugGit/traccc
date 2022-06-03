@@ -697,8 +697,8 @@ measurement_container_types::host component_connection_ssv::operator()(
     }
 
     /*
-    * Store the flattened arrays in a convenience data container.
-    */
+     * Store the flattened arrays in a convenience data container.
+     */
     details::cell_container container;
     container.size = total_cells;
     container.channel0 = channel0.data();
