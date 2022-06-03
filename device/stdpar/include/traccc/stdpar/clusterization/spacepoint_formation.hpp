@@ -22,7 +22,7 @@ namespace traccc::stdpar {
 /// Connected component labeling.
 struct spacepoint_formation
     : public algorithm<host_spacepoint_collection(
-          const cell_module&, const host_measurement_collection&)> {
+          const cell_module&, const measurement_container_types::host&)> {
 
     public:
     /// Constructor for spacepoint_formation
@@ -43,7 +43,7 @@ struct spacepoint_formation
     /// identical
     output_type operator()(
         const cell_module& c,
-        const host_measurement_collection& m) const override {        
+        const measurement_container_types::host& m) const override {        
         output_type spacepoints;
         this->operator()(c, m, spacepoints);
         return spacepoints;
@@ -61,7 +61,7 @@ struct spacepoint_formation
     /// @return a measurement collection - size of input/output container is
     /// identical
     void operator()(const cell_module& module,
-                    const host_measurement_collection& measurements,
+                    const measurement_container_types::host& measurements,
                     output_type& spacepoints) const {
         // Run the algorithm
         int number_of_measurements = measurements.size();
