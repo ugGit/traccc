@@ -659,7 +659,7 @@ std::vector<details::ccl_partition> partition(
 }
 }  // namespace details
 
-measurement_container_types::host component_connection_ssv::operator()(
+component_connection_ssv::output_type component_connection_ssv::operator()(
     const cell_container_types::host& data) const {
     // TODO: replace with call to cell_container_types::host.size() once code is working
     /*
@@ -735,7 +735,7 @@ measurement_container_types::host component_connection_ssv::operator()(
     /*
      * Transform flat data structure to expected output format again.
      */
-    measurement_container_types::host out;
+    output_type out;
 
     for (std::size_t i = 0; i < data.size(); ++i) {
         vecmem::vector<measurement> v;
