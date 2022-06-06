@@ -26,6 +26,7 @@ NVCPP_DIRS=(
     "traccc_stdpar_par_unseq_example.dir"
     "traccc_stdpar.dir"
     "traccc_test_stdpar_fastsv.dir"
+    "traccc_stdpar_fastsv_example"
     "traccc_test_stdpar_sparseccl.dir")
 # Prepare compiler args for nvc++ or g++
 if is_any_in_args "${NVCPP_DIRS[@]}"; then
