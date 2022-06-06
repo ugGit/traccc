@@ -15,3 +15,14 @@ set (EXE_NAME "traccc_stdpar_par_example")
 set (STDPAR_TARGET "gpu")
 target_compile_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
 target_link_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
+
+
+
+traccc_add_executable( stdpar_fastsv_example "stdpar_fastsv.cpp"
+   LINK_LIBRARIES vecmem::core traccc::core traccc::io 
+   traccc::options traccc::stdpar Boost::program_options)
+
+set (EXE_NAME2 "traccc_stdpar_fastsv_example")
+set (STDPAR_TARGET "gpu")
+target_compile_options(${EXE_NAME2} PRIVATE -stdpar=${STDPAR_TARGET})
+target_link_options(${EXE_NAME2} PRIVATE -stdpar=${STDPAR_TARGET})
