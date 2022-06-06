@@ -290,7 +290,7 @@ void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
  * f      = array holding the parent cell ID for the current iteration.
  * f_next = buffer array holding updated information for the next iteration.
  */
-__device__ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
+void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
                           index_t adjv[][8], unsigned int size) {
     /*
      * The algorithm finishes if an iteration leaves the array for the next
