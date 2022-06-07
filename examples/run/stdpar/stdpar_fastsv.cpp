@@ -38,6 +38,10 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
     // Read the surface transforms
     auto surface_transforms = traccc::read_geometry2(i_cfg.detector_file); // to run successfully using std par, the modified version of read_geometry is needed (related to string deconstruction problem)
 
+    // Read the digitization configuration file
+    auto digi_cfg =
+        traccc::read_digitization_config(i_cfg.digitization_config_file);
+
     // Output stats
     uint64_t n_cells = 0;
     uint64_t n_modules = 0;
@@ -55,10 +59,10 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
          event < common_opts.events + common_opts.skip; ++event) {
 
         // Read the cells from the relevant event file
-        traccc::host_cell_container cells_per_event =
-            traccc::read_cells_from_event(event, i_cfg.cell_directory,
-                                          common_opts.input_data_format,
-                                          surface_transforms, host_mr);
+        traccc::cell_container_types::host cells_per_event =
+            traccc::read_cells_from_event(
+                event, i_cfg.cell_directory, common_opts.input_data_format,
+                surface_transforms, digi_cfg, host_mr);
 
         /*-------------------
             Clusterization
