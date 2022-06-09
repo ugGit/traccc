@@ -234,7 +234,7 @@ void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
      * their cluster ID if it is lower than our, essentially merging
      * the two together.
      */
-    std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+    std::for_each_n(counting_iterator(0), size, 
       [=](unsigned int i){
         for (unsigned char k = 0; k < adjc[i]; ++k) {
           index_t q = gf[adjv[i][k]];
@@ -251,7 +251,7 @@ void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
      * allows us to look at any shortcuts in the cluster IDs that we
      * can merge without adjacency information.
      */
-    std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+    std::for_each_n(counting_iterator(0), size, 
       [=](unsigned int i){
         if (f[i] > gf[i]) {
           f[i] = gf[i];
@@ -262,7 +262,7 @@ void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
      * Update the array for the next generation, keeping track of any
      * changes we make.
      */
-    std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+    std::for_each_n(counting_iterator(0), size, 
       [=](unsigned int i){
         if (gf[i] != f[f[i]]) {
           gf[i] = f[f[i]];
@@ -277,6 +277,7 @@ void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
    */
   delete gfc;
 }
+
 
 /*
  * Implementation of a SV algorithm with the following steps:
@@ -313,7 +314,7 @@ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
          * grandparents of adjacent cells and copy cluster ID if it
          * is lower than our, essentially merging the two together.
          */
-        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+        std::for_each_n(counting_iterator(0), size, 
           [=](unsigned int i){
             for (unsigned char k = 0; k < adjc[i]; ++k) {
               index_t q = f[f[adjv[i][k]]];
@@ -327,37 +328,27 @@ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
         });
 
         /*
-         * Synchronize before the next stage.
-         */
-        __syncthreads();
-
-        /*
          * The second stage performs aggressive hooking, during which each
          * cell might be hooked to the grand parent of an adjacent cell.
          */
-        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+        std::for_each_n(counting_iterator(0), size, 
           [=](unsigned int i){
             for (unsigned char k = 0; k < adjc[i]; ++k) {
                 index_t q = f[f[adjv[i][k]]];
 
                 if (q < f_next[i]) {
                     f_next[i] = q;
-                    *f_next_changed = true; // TODO: verify that this actually should be triggered (only changes to grandparents should be tracked)
+                    *f_next_changed = true;
                 }
             }
         });
-
-        /*
-         * Synchronize before the next stage.
-         */
-        __syncthreads();
 
         /*
          * The third stage is shortcutting, which is an optimisation that
          * allows us to look at any shortcuts in the cluster IDs that we
          * can merge without adjacency information.
          */
-        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+        std::for_each_n(counting_iterator(0), size, 
           [=](unsigned int i){
             if (f[f[i]] < f_next[i]) {
                 f_next[i] = f[f[i]];
@@ -366,14 +357,9 @@ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
         });
 
         /*
-         * Synchronize before the final stage.
-         */
-        __syncthreads();
-
-        /*
          * Update the array for the next generation.
          */
-        std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+        std::for_each_n(counting_iterator(0), size, 
           [=](unsigned int i){
             f[i] = f_next[i];
         });
@@ -385,7 +371,7 @@ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
          * will return a true value and go to the next iteration. Only if
          * all threads return false will the loop exit.
          */
-    } while (__syncthreads_or(*f_next_changed));
+    } while (*f_next_changed);
 }
 
 /*
@@ -401,7 +387,7 @@ void aggregate_clusters(const cell_container &cells,
   /*
    * Iterate over every cell in the partition and perform aggregation once per cluster.
    */
-  std::for_each_n(std::execution::unseq, counting_iterator(0), size, 
+  std::for_each_n(counting_iterator(0), size, 
     [=](unsigned int i){
       /*
        * If and only if the value in the work arrays is equal to the index
@@ -473,13 +459,12 @@ void aggregate_clusters(const cell_container &cells,
 }
 
 /*
- * Function that organized the parallel execution of the algotrithm.
+ * Function that organizes the parallel execution of the algotrithm.
  */
 void fast_sv_kernel(
     const cell_container container, 
     const std::vector<details::ccl_partition> *partitions,
     measurement_container* _out_ctnr) {
-
   /*
    * If there is no partition, there is nothing to do for the kernel.
    */
@@ -543,7 +528,7 @@ void fast_sv_kernel(
      * At the start, the values of f and gf should be equal to the ID of
      * the cell.
      */
-    std::for_each_n(std::execution::unseq, counting_iterator(0), cells.size, 
+    std::for_each_n(counting_iterator(0), cells.size, 
       [=](unsigned int j){
         f[j] = j;
         gf[j] = j;
