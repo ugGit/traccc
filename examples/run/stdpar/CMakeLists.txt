@@ -15,6 +15,8 @@ set (EXE_NAME "traccc_stdpar_par_example")
 set (STDPAR_TARGET "gpu")
 target_compile_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
 target_link_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${EXE_NAME} PRIVATE -gpu=managed:intercept)
+target_link_options(${EXE_NAME} PRIVATE -gpu=managed:intercept)
 
 
 
@@ -26,3 +28,5 @@ set (EXE_NAME2 "traccc_stdpar_fastsv_example")
 set (STDPAR_TARGET "gpu")
 target_compile_options(${EXE_NAME2} PRIVATE -stdpar=${STDPAR_TARGET})
 target_link_options(${EXE_NAME2} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${EXE_NAME2} PRIVATE -gpu=managed:intercept)
+target_link_options(${EXE_NAME2} PRIVATE -gpu=managed:intercept)
