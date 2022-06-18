@@ -212,7 +212,7 @@ inline void reduce_problem_cell(const cell_container& cells, index_t tid,
  * The implementation corresponds to Algorithm 1 of the following paper:
  * https://epubs.siam.org/doi/pdf/10.1137/1.9781611976137.5
  */
-void simplified_sv(index_t* f, index_t* gf, unsigned char *adjc,
+void fast_sv_1(index_t* f, index_t* gf, unsigned char *adjc,
                           auto adjv, unsigned int size) {
   /*
    * The algorithm finishes if an iteration leaves the arrays unchanged.
@@ -537,7 +537,7 @@ void fast_sv_kernel(
     /*
      * Now we move onto the actual processing part.
      */
-    details::fast_sv_2(f, gf, adjc, adjv, cells.size);
+    details::fast_sv_1(f, gf, adjc, adjv, cells.size);
 
     /*
      * Count the number of clusters by checking how many nodes have

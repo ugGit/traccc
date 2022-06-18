@@ -70,18 +70,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
 
         auto measurements_per_event = ca(cells_per_event);
 
-        /*------------------------
-            Spacepoint formation
-          ------------------------*/
-
-        auto spacepoints_per_event = sf(measurements_per_event);
-
-        std::cout << "----------\n";
-        std::cout << "Data of spacepoint for validation:\n";
-        std::cout << "x: " << spacepoints_per_event[0].items[0].global[0] << std::endl;
-        std::cout << "y: " << spacepoints_per_event[0].items[0].global[1] << std::endl;
-        std::cout << "z: " << spacepoints_per_event[0].items[0].global[2] << std::endl;
-        std::cout << "----------\n";
 
         /*----------------------------
           Statistics
@@ -90,7 +78,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         n_modules += cells_per_event.size();
         n_cells += cells_per_event.total_size();
         n_measurements += measurements_per_event.total_size();
-        n_spacepoints += spacepoints_per_event.total_size();
 
         break;
     }
