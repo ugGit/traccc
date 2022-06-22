@@ -516,7 +516,7 @@ __device__ void aggregate_clusters(const cell_container& cells,
     }
 }
 
-__global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
+__global__ __launch_bounds__(THREADS_PER_BLOCK) void fast_sv_kernel(
     const cell_container container, const ccl_partition* partitions,
     measurement_container& _out_ctnr) {
     const ccl_partition& partition = partitions[blockIdx.x];
@@ -608,7 +608,7 @@ __global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
      */
     __syncthreads();
 
-    fast_sv_1(f, f_next, adjc, adjv, cells.size);
+    fast_sv_2(f, f_next, adjc, adjv, cells.size);
 
     /*
      * This variable will be used to write to the output later.
@@ -812,7 +812,7 @@ component_connection::output_type component_connection::operator()(
      *
      * This step includes the measurement (hit) creation for each cluster.
      */
-    ccl_kernel<<<partitions.size(), THREADS_PER_BLOCK>>>(
+    fast_sv_kernel<<<partitions.size(), THREADS_PER_BLOCK>>>(
         container, partitions.data(), *mctnr);
 
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
