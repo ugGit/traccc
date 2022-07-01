@@ -16,6 +16,8 @@
 #include "vecmem/memory/binary_page_memory_resource.hpp"
 #include "vecmem/memory/cuda/managed_memory_resource.hpp"
 
+#include <chrono>
+
 namespace {
 static constexpr std::size_t MAX_CELLS_PER_PARTITION = 2048;
 static constexpr std::size_t THREADS_PER_BLOCK = 256;
@@ -728,7 +730,7 @@ vecmem::vector<details::ccl_partition> partition(
 }  // namespace details
 
 component_connection::output_type component_connection::operator()(
-    const cell_container_types::host& data) const {
+    const cell_container_types::host& data, benchmark::State *state) const {
     vecmem::cuda::managed_memory_resource upstream;
     vecmem::binary_page_memory_resource mem(upstream);
 
@@ -763,6 +765,11 @@ component_connection::output_type component_connection::operator()(
             module_id.push_back(data.at(i).header.module);
         }
     }
+
+    /*
+     * Start crono for benchmark measuring.
+     */
+    const auto start = std::chrono::high_resolution_clock::now();
 
     /*
      * Store the flattened arrays in a convenience data container.
@@ -816,6 +823,18 @@ component_connection::output_type component_connection::operator()(
         container, partitions.data(), *mctnr);
 
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
+
+    /*
+     * Register elpased time as iteration duration in the benchmark state for this iteration.
+     */
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    if(state != nullptr){
+        auto elapsed_seconds =
+          std::chrono::duration_cast<std::chrono::duration<double>>(
+            end - start);
+        state->SetIterationTime(elapsed_seconds.count());
+    }
 
     /*
      * Copy back the data from our flattened data structure into the traccc EDM.

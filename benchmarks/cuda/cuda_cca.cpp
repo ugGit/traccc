@@ -59,7 +59,7 @@ static void FileIndexArguments(benchmark::internal::Benchmark* b) {
 static void BM_CudaCCA(benchmark::State& state){
   // configuration for the text instead of CLI args
   const char* detector_file = "tml_detector/trackml-detector.csv";
-  const short number_of_events = 10;
+  const short number_of_events = 1;
   const char* digitization_config_file = "tml_detector/default-geometric-config-generic.json";
 
   // Read the surface transforms
@@ -90,23 +90,15 @@ static void BM_CudaCCA(benchmark::State& state){
         /*-------------------
             Clusterization
           -------------------*/
-        // start crono
-        const auto start = std::chrono::high_resolution_clock::now();
-        // run algorithm
-        auto measurements_per_event = ca(cells_per_event);
-        // stop crono
-        const auto end = std::chrono::high_resolution_clock::now();
-        // register elpased time as iteration duration
-        auto elapsed_seconds =
-          std::chrono::duration_cast<std::chrono::duration<double>>(
-            end - start);
-        state.SetIterationTime(elapsed_seconds.count());
+        // The time is measured within the clusterization algorithm
+        auto measurements_per_event = ca(cells_per_event, &state);
     }
   }
 }
 
 BENCHMARK(BM_CudaCCA)
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(FileIndexArguments);
+  // ->Unit(benchmark::kMillisecond)
+  ->Apply(FileIndexArguments)
+  ->UseManualTime();
 
 BENCHMARK_MAIN();
