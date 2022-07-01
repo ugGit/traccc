@@ -27,6 +27,7 @@
 
 // Benchmark 
 #include <benchmark/benchmark.h>
+#include <vector>
 
 /*
 execute_and_print "TRACCC_TEST_DATA_DIR=/home/nwachuch/bld6/traccc/data
@@ -37,13 +38,29 @@ execute_and_print "TRACCC_TEST_DATA_DIR=/home/nwachuch/bld6/traccc/data
 --digitization_config_file=tml_detector/default-geometric-config-generic.json"
 */
 
-// configuration for the text instead of CLI args
-const char* detector_file = "tml_detector/trackml-detector.csv";
-const char* cell_directory = "tml_pixels/";
-const short number_of_events = 10;
-const char* digitization_config_file = "tml_detector/default-geometric-config-generic.json";
+// define the cell directories in an indexable manner since google benchmark only accepts integer arguments...
+const std::vector<std::string> cell_directories = {
+  "tml_full/ttbar_mu20/",
+  "tml_full/ttbar_mu40/",
+  "tml_full/ttbar_mu60/",
+  "tml_full/ttbar_mu100/",
+  "tml_full/ttbar_mu200/",
+  "tml_full/ttbar_mu300/",
+};
+
+// generate a sequence from 0 to last index of test files
+static void FileIndexArguments(benchmark::internal::Benchmark* b) {
+  for (int i = 0; i < cell_directories.size(); ++i){
+    b->Arg(i);
+  }
+}
 
 static void BM_CudaCCA(benchmark::State& state){
+  // configuration for the text instead of CLI args
+  const char* detector_file = "tml_detector/trackml-detector.csv";
+  const short number_of_events = 10;
+  const char* digitization_config_file = "tml_detector/default-geometric-config-generic.json";
+
   // Read the surface transforms
   auto surface_transforms = traccc::read_geometry(detector_file);
 
@@ -51,18 +68,14 @@ static void BM_CudaCCA(benchmark::State& state){
   auto digi_cfg =
       traccc::read_digitization_config(digitization_config_file);
 
-  // Output stats
-  uint64_t n_cells = 0;
-  uint64_t n_modules = 0;
-  uint64_t n_measurements = 0;
-  uint64_t n_spacepoints = 0;
-
   // Memory resource used by the EDM.
   vecmem::host_memory_resource host_mr;  
 
   traccc::cuda::component_connection ca;
 
   for (auto _ : state){
+    // Read params for this iteration of the benchmark
+    auto cell_directory = cell_directories.at(state.range(0)); // returns only the file name
     // Loop over events
     for (unsigned int event = 0;
          event < number_of_events; ++event) {
@@ -87,26 +100,12 @@ static void BM_CudaCCA(benchmark::State& state){
           std::chrono::duration_cast<std::chrono::duration<double>>(
             end - start);
         state.SetIterationTime(elapsed_seconds.count());
-
-        /*----------------------------
-          Statistics
-          ----------------------------*/
-        n_modules += cells_per_event.size();
-        n_cells += cells_per_event.total_size();
-        n_measurements += measurements_per_event.total_size();
     }
   }
-
-  std::cout << "==> Statistics ... " << std::endl;
-  std::cout << "----------    -\n";
-  std::cout << "- read    " << n_cells << " cells from " << n_modules
-            << " modules" << std::endl;
-  std::cout << "- created " << n_measurements << " measurements. "
-            << std::endl;
-  std::cout << "- created " << n_spacepoints << " space points. "
-            << std::endl;     
 }
 
-BENCHMARK(BM_CudaCCA)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_CudaCCA)
+  ->Unit(benchmark::kMillisecond)
+  ->Apply(FileIndexArguments);
 
 BENCHMARK_MAIN();
