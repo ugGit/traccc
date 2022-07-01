@@ -16,6 +16,8 @@
 #include "vecmem/memory/binary_page_memory_resource.hpp"
 #include "vecmem/memory/cuda/managed_memory_resource.hpp"
 
+#include <chrono>
+
 namespace {
 static constexpr std::size_t MAX_CELLS_PER_PARTITION = 2048;
 static constexpr std::size_t THREADS_PER_BLOCK = 256;
@@ -786,6 +788,8 @@ component_connection::output_type component_connection::operator()(
     vecmem::vector<details::ccl_partition> partitions =
         details::partition(data, mem);
 
+    printf("Number of partitions: %d\n", partitions.size());
+
     /*
      * Reserve space for the result of the algorithm. Currently, there is
      * enough space allocated that (in theory) each cell could be a single
@@ -807,6 +811,9 @@ component_connection::output_type component_connection::operator()(
     mctnr->module_id = static_cast<geometry_id*>(
         alloc.allocate_bytes(total_cells * sizeof(geometry_id)));
 
+
+    auto start = std::chrono::high_resolution_clock::now();
+
     /*
      * Run the connected component labeling algorithm to retrieve the clusters.
      *
@@ -816,6 +823,14 @@ component_connection::output_type component_connection::operator()(
         container, partitions.data(), *mctnr);
 
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto elapsed_seconds =
+      std::chrono::duration_cast<std::chrono::duration<double>>(
+        end - start);
+
+    // printf("Kernel measurement: %.20f\n", elapsed_seconds);
 
     /*
      * Copy back the data from our flattened data structure into the traccc EDM.

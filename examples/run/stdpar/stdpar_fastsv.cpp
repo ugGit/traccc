@@ -78,8 +78,6 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
         n_modules += cells_per_event.size();
         n_cells += cells_per_event.total_size();
         n_measurements += measurements_per_event.total_size();
-
-        break;
     }
 
     // stop crono

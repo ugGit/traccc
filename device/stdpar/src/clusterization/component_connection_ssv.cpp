@@ -19,6 +19,8 @@
 #include <iostream>
 #include <atomic>
 
+#include <chrono>
+
 // define local constant values
 namespace {
 using index_t = unsigned short;
@@ -375,6 +377,92 @@ void fast_sv_2(index_t* f, index_t* f_next, unsigned char adjc[],
 }
 
 /*
+ * Implementation of a simplified SV algorithm with the following steps:
+ *   1) tree hooking
+ *   2) shortcutting
+ *
+ * The implementation corresponds to Algorithm 1 of the following paper:
+ * https://epubs.siam.org/doi/pdf/10.1137/1.9781611976137.5
+ *
+ * f      = array holding the parent cell ID for the current iteration.
+ * f_next = buffer array holding updated information for the next iteration.
+ */
+void simplified_sv(index_t* f, index_t* f_next, unsigned char adjc[],
+                   index_t adjv[][8], unsigned int size) {
+    /*
+     * The algorithm finishes if an iteration leaves the array for the next
+     * iteration unchanged.
+     * This varible will be set if a change is made, and dictates if another
+     * loop is necessary.
+     */
+    bool *f_changed = new bool();
+
+    do {
+        /*
+         * Reset the end-parameter to false, so we can set it to true if we
+         * make a change to the f_next array.
+         */
+        *f_changed = false;
+
+        /*
+         * The algorithm executes in a loop of four distinct parallel
+         * stages. In this first one, tree hooking, we examine adjacent cells of
+         * cluster roots and copy their cluster ID if it is lower than our,
+         * essentially merging the two together.
+         */
+        std::for_each_n(counting_iterator(0), size, 
+          [=](unsigned int i){
+            if (f[i] == f[f[i]]) {  // only perform for roots of clusters
+                for (unsigned char k = 0; k < adjc[i]; ++k) {
+                    index_t q = f[adjv[i][k]];
+                    if (q < f[i]) {
+                        f_next[f[i]] = q;
+                        *f_changed = true;
+                    }
+                }
+            }
+        });
+
+        /*
+         * Update the array for the next stage of the iteration.
+         */
+        std::for_each_n(counting_iterator(0), size, 
+          [=](unsigned int i){
+            f[i] = f_next[i];
+        });
+
+        /*
+         * The third stage is shortcutting, which is an optimisation that
+         * allows us to look at any shortcuts in the cluster IDs that we
+         * can merge without adjacency information.
+         */
+        std::for_each_n(counting_iterator(0), size, 
+          [=](unsigned int i){
+            if (f[f[i]] < f[i]) {
+                f_next[i] = f[f[i]];
+                *f_changed = true;
+            }
+        });
+
+        /*
+         * Update the array for the next generation.
+         */
+        std::for_each_n(counting_iterator(0), size, 
+          [=](unsigned int i){
+            f[i] = f_next[i];
+        });
+
+        /*
+         * To determine whether we need another iteration, we use block
+         * voting mechanics. Each thread checks if it has made any changes
+         * to the arrays, and votes. If any thread votes true, all threads
+         * will return a true value and go to the next iteration. Only if
+         * all threads return false will the loop exit.
+         */
+    } while (*f_changed);
+}
+
+/*
  * Aggregate the information of all cells within a cluster to a single measurement.
  */
 void aggregate_clusters(const cell_container &cells,
@@ -476,6 +564,9 @@ void fast_sv_kernel(
    */
   const details::ccl_partition *p = partitions->data();
 
+
+  auto start = std::chrono::high_resolution_clock::now();
+
   /*
    * Start running the work in different kernels using std par.
    */
@@ -537,7 +628,7 @@ void fast_sv_kernel(
     /*
      * Now we move onto the actual processing part.
      */
-    details::fast_sv_1(f, gf, adjc, adjv, cells.size);
+    details::fast_sv_2(f, gf, adjc, adjv, cells.size);
 
     /*
      * Count the number of clusters by checking how many nodes have
@@ -582,6 +673,15 @@ void fast_sv_kernel(
     delete[] f;
     delete[] gf;
   });
+
+
+  auto end = std::chrono::high_resolution_clock::now();
+
+  auto elapsed_seconds =
+    std::chrono::duration_cast<std::chrono::duration<double>>(
+      end - start);
+
+  printf("Kernel measurmnt: %.20f\n", elapsed_seconds);
 }
 
 /*
@@ -697,6 +797,16 @@ component_connection_ssv::output_type component_connection_ssv::operator()(
      */
     std::vector<details::ccl_partition> partitions = 
       details::partition(container.channel1, container.module_id, container.size);
+    
+
+
+    printf("Number of partitions: %d\n", partitions.size());
+
+
+    printf("Nbr of partitions: %d\n", partitions.size());
+    for(int i=0; i < partitions.size();i++){
+      printf("Partition %d has %d hits\n", i, partitions.at(i).size);
+    }
     
     /*
      * Reserve space for the result of the algorithm. Currently, there is 
