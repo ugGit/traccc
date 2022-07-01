@@ -798,16 +798,6 @@ component_connection_ssv::output_type component_connection_ssv::operator()(
     std::vector<details::ccl_partition> partitions = 
       details::partition(container.channel1, container.module_id, container.size);
     
-
-
-    printf("Number of partitions: %d\n", partitions.size());
-
-
-    printf("Nbr of partitions: %d\n", partitions.size());
-    for(int i=0; i < partitions.size();i++){
-      printf("Partition %d has %d hits\n", i, partitions.at(i).size);
-    }
-    
     /*
      * Reserve space for the result of the algorithm. Currently, there is 
      * enough space allocated that (in theory) each cell could be a single
