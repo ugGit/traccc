@@ -48,11 +48,19 @@ const std::vector<std::string> cell_directories = {
   // "tml_full/ttbar_mu300/",
   "tml_pixels/",
 };
+// define the algorithms that shall be measured
+const std::vector<traccc::cuda::cc_algorithm> cc_algorithms = {
+  traccc::cuda::cc_algorithm::simplified_sv, 
+  traccc::cuda::cc_algorithm::fast_sv_1, 
+  traccc::cuda::cc_algorithm::fast_sv_2
+};
 
 // generate a sequence from 0 to last index of test files
-static void FileIndexArguments(benchmark::internal::Benchmark* b) {
+static void parameter_space(benchmark::internal::Benchmark* b) {
   for (int i = 0; i < cell_directories.size(); ++i){
-    b->Arg(i);
+    for (int j = 0; j < cc_algorithms.size(); ++j){
+      b->Args({i, j});
+    }
   }
 }
 
@@ -80,6 +88,7 @@ static void BM_CudaCCA(benchmark::State& state){
     double kernel_execution_duration;
     // Read params for this iteration of the benchmark
     auto cell_directory = cell_directories.at(state.range(0)); // returns only the file name
+    auto cc_algorithm = cc_algorithms.at(state.range(1));
     // Loop over events
     for (unsigned int event = 0;
          event < number_of_events; ++event) {
@@ -94,7 +103,7 @@ static void BM_CudaCCA(benchmark::State& state){
             Clusterization
           -------------------*/
         // Kernel execution time is going to be stored in the kernel_execution_duration variable
-        auto measurements_per_event = ca(cells_per_event, &kernel_execution_duration);
+        auto measurements_per_event = ca(cells_per_event, &kernel_execution_duration, cc_algorithm);
 
         // Update manual timer
         total_elpased_time += kernel_execution_duration;
@@ -107,7 +116,7 @@ static void BM_CudaCCA(benchmark::State& state){
 
 BENCHMARK(BM_CudaCCA)
   ->Unit(benchmark::kMillisecond)
-  ->Apply(FileIndexArguments)
+  ->Apply(parameter_space)
   ->UseManualTime();
 
 BENCHMARK_MAIN();

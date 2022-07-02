@@ -15,12 +15,18 @@
 #include <benchmark/benchmark.h>
 
 namespace traccc::cuda {
+
+enum class cc_algorithm{ simplified_sv, fast_sv_1, fast_sv_2};
+
 struct component_connection : algorithm<measurement_container_types::host(
                                   const cell_container_types::host& cells)> {
     // pass the benchmark state as nullptr to detect when none is passed, marks a non-breaking code extension
     output_type operator()(const cell_container_types::host& cells) const{
-      return this->operator()(cells, nullptr);
+      return this->operator()(cells, nullptr, cc_algorithm::simplified_sv);
     };
-    output_type operator()(const cell_container_types::host& cells, double* kernel_execution_duration) const;
+    
+    output_type operator()(const cell_container_types::host& cells, 
+                           double* kernel_execution_duration,
+                           cc_algorithm selected_algorithm) const;
 };
 }  // namespace traccc::cuda

@@ -520,7 +520,7 @@ __device__ void aggregate_clusters(const cell_container& cells,
 
 __global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
     const cell_container container, const ccl_partition* partitions,
-    measurement_container& _out_ctnr) {
+    measurement_container& _out_ctnr, const cc_algorithm selected_algorithm) {
     const ccl_partition& partition = partitions[blockIdx.x];
 
     /*
@@ -610,7 +610,17 @@ __global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
      */
     __syncthreads();
 
-    fast_sv_1(f, f_next, adjc, adjv, cells.size);
+    switch(selected_algorithm){
+      case cc_algorithm::simplified_sv:
+        simplified_sv(f, f_next, adjc, adjv, cells.size);
+        break;
+      case cc_algorithm::fast_sv_1:
+        fast_sv_1(f, f_next, adjc, adjv, cells.size);
+        break;
+      case cc_algorithm::fast_sv_2:
+        fast_sv_2(f, f_next, adjc, adjv, cells.size);
+        break;
+    }
 
     /*
      * This variable will be used to write to the output later.
@@ -730,7 +740,9 @@ vecmem::vector<details::ccl_partition> partition(
 }  // namespace details
 
 component_connection::output_type component_connection::operator()(
-    const cell_container_types::host& data, double* kernel_execution_duration) const {
+    const cell_container_types::host& data, 
+    double* kernel_execution_duration,
+    const cc_algorithm selected_algorithm) const {
     vecmem::cuda::managed_memory_resource upstream;
     vecmem::binary_page_memory_resource mem(upstream);
 
@@ -820,7 +832,7 @@ component_connection::output_type component_connection::operator()(
      * This step includes the measurement (hit) creation for each cluster.
      */
     ccl_kernel<<<partitions.size(), THREADS_PER_BLOCK>>>(
-        container, partitions.data(), *mctnr);
+        container, partitions.data(), *mctnr, selected_algorithm);
 
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
