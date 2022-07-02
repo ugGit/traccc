@@ -779,11 +779,6 @@ component_connection::output_type component_connection::operator()(
     }
 
     /*
-     * Start crono for benchmark measuring.
-     */
-    const auto start = std::chrono::high_resolution_clock::now();
-
-    /*
      * Store the flattened arrays in a convenience data container.
      */
     details::cell_container container;
@@ -825,6 +820,11 @@ component_connection::output_type component_connection::operator()(
         alloc.allocate_bytes(total_cells * sizeof(scalar)));
     mctnr->module_id = static_cast<geometry_id*>(
         alloc.allocate_bytes(total_cells * sizeof(geometry_id)));
+
+    /*
+     * Start crono for benchmark measuring.
+     */
+    const auto start = std::chrono::high_resolution_clock::now();
 
     /*
      * Run the connected component labeling algorithm to retrieve the clusters.
