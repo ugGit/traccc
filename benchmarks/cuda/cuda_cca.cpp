@@ -59,7 +59,7 @@ static void FileIndexArguments(benchmark::internal::Benchmark* b) {
 static void BM_CudaCCA(benchmark::State& state){
   // configuration for the text instead of CLI args
   const char* detector_file = "tml_detector/trackml-detector.csv";
-  const short number_of_events = 1;
+  const short number_of_events = 10;
   const char* digitization_config_file = "tml_detector/default-geometric-config-generic.json";
 
   // Read the surface transforms
@@ -75,6 +75,9 @@ static void BM_CudaCCA(benchmark::State& state){
   traccc::cuda::component_connection ca;
 
   for (auto _ : state){
+    // Init manual timer
+    double total_elpased_time = 0;
+    double kernel_execution_duration;
     // Read params for this iteration of the benchmark
     auto cell_directory = cell_directories.at(state.range(0)); // returns only the file name
     // Loop over events
@@ -90,14 +93,20 @@ static void BM_CudaCCA(benchmark::State& state){
         /*-------------------
             Clusterization
           -------------------*/
-        // The time is measured within the clusterization algorithm
-        auto measurements_per_event = ca(cells_per_event, &state);
+        // Kernel execution time is going to be stored in the kernel_execution_duration variable
+        auto measurements_per_event = ca(cells_per_event, &kernel_execution_duration);
+
+        // Update manual timer
+        total_elpased_time += kernel_execution_duration;
     }
+
+    // Set execution time for this dataset
+    state.SetIterationTime(total_elpased_time);
   }
 }
 
 BENCHMARK(BM_CudaCCA)
-  // ->Unit(benchmark::kMillisecond)
+  ->Unit(benchmark::kMillisecond)
   ->Apply(FileIndexArguments)
   ->UseManualTime();
 

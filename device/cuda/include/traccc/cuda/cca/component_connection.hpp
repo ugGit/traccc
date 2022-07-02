@@ -21,6 +21,6 @@ struct component_connection : algorithm<measurement_container_types::host(
     output_type operator()(const cell_container_types::host& cells) const{
       return this->operator()(cells, nullptr);
     };
-    output_type operator()(const cell_container_types::host& cells, benchmark::State *state) const;
+    output_type operator()(const cell_container_types::host& cells, double* kernel_execution_duration) const;
 };
 }  // namespace traccc::cuda

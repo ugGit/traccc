@@ -730,7 +730,7 @@ vecmem::vector<details::ccl_partition> partition(
 }  // namespace details
 
 component_connection::output_type component_connection::operator()(
-    const cell_container_types::host& data, benchmark::State *state) const {
+    const cell_container_types::host& data, double* kernel_execution_duration) const {
     vecmem::cuda::managed_memory_resource upstream;
     vecmem::binary_page_memory_resource mem(upstream);
 
@@ -829,11 +829,11 @@ component_connection::output_type component_connection::operator()(
      */
     const auto end = std::chrono::high_resolution_clock::now();
 
-    if(state != nullptr){
-        auto elapsed_seconds =
+    if(kernel_execution_duration != nullptr){
+        auto elpased_time =
           std::chrono::duration_cast<std::chrono::duration<double>>(
             end - start);
-        state->SetIterationTime(elapsed_seconds.count());
+        *kernel_execution_duration = elpased_time.count();
     }
 
     /*
