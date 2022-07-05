@@ -64,6 +64,10 @@ static void parameter_space(benchmark::internal::Benchmark* b) {
   }
 }
 
+// caching structure to readuce amount of times where the data file has to be read (I/O)
+// the map uses the cell_directory and event id as key, and holds the read in cell container
+std::map<std::tuple<std::string, int>, traccc::cell_container_types::host> cell_data_cache;
+
 static void BM_CudaCCA(benchmark::State& state){
   // configuration for the text instead of CLI args
   const char* detector_file = "tml_detector/trackml-detector.csv";
@@ -93,12 +97,19 @@ static void BM_CudaCCA(benchmark::State& state){
     for (unsigned int event = 0;
          event < number_of_events; ++event) {
 
-        // Read the cells from the relevant event file
-        traccc::cell_container_types::host cells_per_event =
-            traccc::read_cells_from_event(
-                event, cell_directory, traccc::data_format::csv,
-                surface_transforms, digi_cfg, host_mr);
-
+        // Read the cells from the relevant event file or the cache
+        traccc::cell_container_types::host cells_per_event;
+        auto key = std::make_tuple(cell_directory, event);
+        if (cell_data_cache.count(key)){
+            cells_per_event = cell_data_cache[key];
+        } else {
+            cells_per_event =
+              traccc::read_cells_from_event(
+                  event, cell_directory, traccc::data_format::csv,
+                  surface_transforms, digi_cfg, host_mr);
+            cell_data_cache[key] = cells_per_event;
+        }
+        
         /*-------------------
             Clusterization
           -------------------*/
