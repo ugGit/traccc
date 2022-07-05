@@ -18,6 +18,8 @@ endif()
 if (NOT TARGET gtest)
   add_subdirectory(googletest)
 endif()
+# TODO make this conditional while having pre-condition of having google test installed
+add_subdirectory(googlebenchmark)
 
 # enable vecmem for algebra plugins
 if (NOT ${ALGEBRA_PLUGIN_SOURCE_DIR})
