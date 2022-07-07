@@ -95,6 +95,6 @@ static void BM_CA(benchmark::State& state, T&& wrapper_ca_function){
 
     // Set execution time for this dataset
     state.SetIterationTime(total_elpased_time);
-    state.setLabel(cell_directory);
+    state.SetLabel(cell_directory);
   }
 }
