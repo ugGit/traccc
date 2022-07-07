@@ -14,5 +14,8 @@ FetchContent_Declare(googlebenchmark
 FetchContent_MakeAvailable(
         googlebenchmark)
 
+# Add common benchmarks
+add_subdirectory(common)
+
 # Add CUDA benchmarks
 add_subdirectory(cuda)
