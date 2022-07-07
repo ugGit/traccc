@@ -21,7 +21,7 @@
 
 // Benchmark 
 #include <benchmark/benchmark.h>
-#include "../common/cca_benchmark.cpp"
+#include "benchmarks/cca_benchmark.cpp"
 
 
 // wrapper to add the algorithm variant to the function

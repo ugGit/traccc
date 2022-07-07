@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
 
+# Project include(s).
+include( traccc-compiler-options-cpp )
+
 ## Project-wide setup
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -14,8 +17,13 @@ FetchContent_Declare(googlebenchmark
 FetchContent_MakeAvailable(
         googlebenchmark)
 
-# Add common benchmarks
-add_subdirectory(common)
+# Set up a common library, shared by all of the tests.
+add_library( traccc_benchmarks_common INTERFACE )
+target_include_directories( traccc_benchmarks_common
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/common )
 
 # Add CUDA benchmarks
-add_subdirectory(cuda)
+
+if( TRACCC_BUILD_CUDA )
+  add_subdirectory(cuda)
+endif()
