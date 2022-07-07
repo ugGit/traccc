@@ -518,7 +518,7 @@ __device__ void aggregate_clusters(const cell_container& cells,
     }
 }
 
-__global__ __launch_bounds__(THREADS_PER_BLOCK) void fast_sv_kernel(
+__global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
     const cell_container container, const ccl_partition* partitions,
     measurement_container& _out_ctnr, const cc_algorithm selected_algorithm) {
     const ccl_partition& partition = partitions[blockIdx.x];
@@ -823,9 +823,6 @@ component_connection::output_type component_connection::operator()(
     mctnr->module_id = static_cast<geometry_id*>(
         alloc.allocate_bytes(total_cells * sizeof(geometry_id)));
 
-
-    auto start = std::chrono::high_resolution_clock::now();
-
     /*
      * Start crono for benchmark measuring.
      */
@@ -836,23 +833,10 @@ component_connection::output_type component_connection::operator()(
      *
      * This step includes the measurement (hit) creation for each cluster.
      */
-<<<<<<< HEAD
-    fast_sv_kernel<<<partitions.size(), THREADS_PER_BLOCK>>>(
-        container, partitions.data(), *mctnr);
-=======
     ccl_kernel<<<partitions.size(), THREADS_PER_BLOCK>>>(
         container, partitions.data(), *mctnr, selected_algorithm);
->>>>>>> google_benchmark
 
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
-
-    auto end = std::chrono::high_resolution_clock::now();
-
-    auto elapsed_seconds =
-      std::chrono::duration_cast<std::chrono::duration<double>>(
-        end - start);
-
-    // printf("Kernel measurement: %.20f\n", elapsed_seconds);
 
     /*
      * Register elpased time as iteration duration in the benchmark state for this iteration.
