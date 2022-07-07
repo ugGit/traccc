@@ -12,13 +12,6 @@
 #include <benchmark/benchmark.h>
 #include "benchmarks/cca_benchmark.cpp"
 
-
-// wrapper to add the algorithm variant to the function
-auto cuda_cca_fast_sv_1 = [](traccc::cell_container_types::host &cells_per_event, double* kernel_execution_duration){
-  traccc::cuda::component_connection ca;
-  return ca(cells_per_event, kernel_execution_duration, traccc::cuda::cc_algorithm::fast_sv_1);
-};
-
 // generator that returns a wrapper to call the clusterization algorithm with the desired cuda cc_algorithm
 auto cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm algo){
   return [=](traccc::cell_container_types::host &cells_per_event, double* kernel_execution_duration){
@@ -27,7 +20,19 @@ auto cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm algo){
   };
 }
 
+BENCHMARK_CAPTURE(BM_CCA, cca_simplified_sv, cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm::simplified_sv))
+  ->Unit(benchmark::kMillisecond)
+  ->Apply(parameter_space)
+  ->ArgNames({"DatasetFileIndex"})
+  ->UseManualTime();
+
 BENCHMARK_CAPTURE(BM_CCA, cca_fast_sv_1, cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm::fast_sv_1))
+  ->Unit(benchmark::kMillisecond)
+  ->Apply(parameter_space)
+  ->ArgNames({"DatasetFileIndex"})
+  ->UseManualTime();
+
+BENCHMARK_CAPTURE(BM_CCA, cca_fast_sv_2, cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm::fast_sv_2))
   ->Unit(benchmark::kMillisecond)
   ->Apply(parameter_space)
   ->ArgNames({"DatasetFileIndex"})
