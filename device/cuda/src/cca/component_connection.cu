@@ -800,8 +800,6 @@ component_connection::output_type component_connection::operator()(
     vecmem::vector<details::ccl_partition> partitions =
         details::partition(data, mem);
 
-    printf("Number of partitions: %d\n", partitions.size());
-
     /*
      * Reserve space for the result of the algorithm. Currently, there is
      * enough space allocated that (in theory) each cell could be a single
