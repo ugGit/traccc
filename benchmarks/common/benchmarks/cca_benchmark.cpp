@@ -33,7 +33,7 @@ const std::vector<std::string> cell_directories = {
 
 // generate a sequence from 0 to last index of test files
 static void parameter_space(benchmark::internal::Benchmark* b) {
-  for (int i = 0; i < cell_directories.size(); ++i){
+  for (unsigned int i = 0; i < cell_directories.size(); ++i){
     b->Arg(i);
   }
 }
@@ -95,5 +95,6 @@ static void BM_CA(benchmark::State& state, T&& wrapper_ca_function){
 
     // Set execution time for this dataset
     state.SetIterationTime(total_elpased_time);
+    state.setLabel(cell_directory);
   }
 }
