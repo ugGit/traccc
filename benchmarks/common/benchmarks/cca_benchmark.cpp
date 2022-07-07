@@ -44,7 +44,7 @@ static std::map<std::tuple<std::string, int>, traccc::cell_container_types::host
 
 // generic function to measure a clusterization algorithm
 template<typename T>
-static void BM_CA(benchmark::State& state, T&& wrapper_ca_function){
+static void BM_CCA(benchmark::State& state, T&& wrapper_ca_function){
   // configuration for the text instead of CLI args
   const char* detector_file = "tml_detector/trackml-detector.csv";
   const short number_of_events = 10;

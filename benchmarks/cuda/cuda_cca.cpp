@@ -27,7 +27,7 @@ auto cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm algo){
   };
 }
 
-BENCHMARK_CAPTURE(BM_CA, my_name, cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm::fast_sv_1))
+BENCHMARK_CAPTURE(BM_CCA, cca_fast_sv_1, cuda_cca_wrapper_generator(traccc::cuda::cc_algorithm::fast_sv_1))
   ->Unit(benchmark::kMillisecond)
   ->Apply(parameter_space)
   ->ArgNames({"DatasetFileIndex"})
