@@ -25,15 +25,15 @@ namespace traccc::stdpar {
 /// the host- and device versions of the EDM, making use of a single
 /// implementation internally.
 ///
-class component_connection
+class component_connection_sparseccl
     : public algorithm<cluster_container_types::host(const cell_container_types::host&)> {
     //   public algorithm<cluster_container_types::host(const device_cell_collection&,
     //                                           const cell_module&)> {
     public:
-    /// Constructor for component_connection
+    /// Constructor for component_connection_sparseccl
     ///
     /// @param mr is the memory resource
-    component_connection(vecmem::memory_resource& mr) : m_mr(mr) {}
+    component_connection_sparseccl(vecmem::memory_resource& mr) : m_mr(mr) {}
 
     // Placeholder since the calling interface for this algorithm differs.
     output_type operator()(
@@ -77,6 +77,6 @@ class component_connection
     private:
     std::reference_wrapper<vecmem::memory_resource> m_mr;
 
-};  // class component_connection
+};  // class component_connection_sparseccl
 
 }  // namespace traccc::stdpar

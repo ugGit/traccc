@@ -12,7 +12,7 @@
 #include "traccc/io/writer.hpp"
 
 // algorithms
-#include "traccc/stdpar/clusterization/component_connection_ssv.hpp"
+#include "traccc/stdpar/clusterization/component_connection_fastsv.hpp"
 #include "traccc/clusterization/spacepoint_formation.hpp"
 
 // options
@@ -51,7 +51,7 @@ int seq_run(const traccc::full_tracking_input_config& i_cfg,
     // Memory resource used by the EDM.
     vecmem::host_memory_resource host_mr;  
 
-    traccc::stdpar::component_connection_ssv ca;
+    traccc::stdpar::component_connection_fastsv ca;
     traccc::spacepoint_formation sf(host_mr);
 
     // Loop over events

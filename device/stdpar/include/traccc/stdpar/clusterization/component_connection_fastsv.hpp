@@ -16,7 +16,7 @@ namespace traccc::stdpar {
 /*
  * Simplified SV algorithm for connecteed component analysis.
  */
-struct component_connection_ssv : algorithm<measurement_container_types::host(
+struct component_connection_fastsv : algorithm<measurement_container_types::host(
                                   const cell_container_types::host& cells)> {
     output_type operator()(const cell_container_types::host& cells) const;
 };

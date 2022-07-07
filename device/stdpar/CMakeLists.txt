@@ -21,14 +21,14 @@ traccc_add_library( ${LIB} stdpar TYPE SHARED
   "include/traccc/stdpar/clusterization/spacepoint_formation.hpp"
   "include/traccc/stdpar/clusterization/measurement_creation.hpp"
   "include/traccc/stdpar/clusterization/measurement_creation_helper.hpp"
-  "include/traccc/stdpar/clusterization/component_connection.hpp"
-  "include/traccc/stdpar/clusterization/component_connection_ssv.hpp"
+  "include/traccc/stdpar/clusterization/component_connection_sparseccl.hpp"
+  "include/traccc/stdpar/clusterization/component_connection_fastsv.hpp"
   "include/traccc/stdpar/clusterization/clusterization_algorithm.hpp"
   "include/traccc/stdpar/clusterization/detail/sparse_ccl.hpp"
   "include/traccc/stdpar/clusterization/detail/cluster_element.hpp"
   # implementation files
   "src/clusterization/test.cpp"
-  "src/clusterization/component_connection_ssv.cpp"
+  "src/clusterization/component_connection_fastsv.cpp"
 )
 target_link_libraries( ${LIB}
   PUBLIC traccc::core)

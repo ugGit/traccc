@@ -10,11 +10,11 @@
 #include <functional>
 
 #include "tests/cca_test.hpp"
-#include "traccc/stdpar/clusterization/component_connection_ssv.hpp"
+#include "traccc/stdpar/clusterization/component_connection_fastsv.hpp"
 
 namespace {
 
-traccc::stdpar::component_connection_ssv ca;
+traccc::stdpar::component_connection_fastsv ca;
 
 cca_function_t f = [](const traccc::cell_container_types::host &data) {
     std::map<traccc::geometry_id, vecmem::vector<traccc::measurement>> result;

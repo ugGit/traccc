@@ -11,7 +11,7 @@
 #include "traccc/edm/measurement.hpp"
 #include "vecmem/containers/vector.hpp"
 
-#include "traccc/stdpar/clusterization/component_connection_ssv.hpp"
+#include "traccc/stdpar/clusterization/component_connection_fastsv.hpp"
 #include "traccc/stdpar/utils/CountingIterator.hpp"
 #include <algorithm>
 #include <execution>
@@ -744,7 +744,7 @@ std::vector<details::ccl_partition> partition(
 }
 }  // namespace details
 
-component_connection_ssv::output_type component_connection_ssv::operator()(
+component_connection_fastsv::output_type component_connection_fastsv::operator()(
     const cell_container_types::host& data) const {
     // TODO: replace with call to cell_container_types::host.size() once code is working
     /*
