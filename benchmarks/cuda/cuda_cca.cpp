@@ -5,19 +5,8 @@
  * Mozilla Public License Version 2.0
  */
 
-// io
-#include "traccc/io/csv.hpp"
-#include "traccc/io/reader.hpp"
-#include "traccc/io/utils.hpp"
-#include "traccc/io/writer.hpp"
-#include "traccc/io/data_format.hpp"
-
 // algorithms
 #include "traccc/cuda/cca/component_connection.hpp"
-
-// System include(s).
-#include <exception>
-#include <iostream>
 
 // Benchmark 
 #include <benchmark/benchmark.h>
