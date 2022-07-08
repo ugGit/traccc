@@ -65,33 +65,40 @@ class clusterization_algorithm
         measurement** output_items_array = new measurement*[nbr_of_modules];
         unsigned int* output_num_measurments_array = new unsigned int[nbr_of_modules];
 
+        // init temporary structure in unified memory to prevent memory space problems when created within stdpar loop
+        cluster_element** cluster_container = new cluster_element*[nbr_of_modules]; 
+        
         // TODO: should not be necessary, but it is as the arrays can't be initialized within stdpar loop. Default constructs way to many measurements. 
         // init the output_items_array to welcome in the worst case as many measurements as there are activations in the module
         for(int i=0; i < nbr_of_modules; i++){
-          output_items_array[i] = new measurement[cells_per_event.at(i).items.size()];
+          const unsigned int nbr_of_activations = cells_per_event.at(i).items.size();
+          output_items_array[i] = new measurement[nbr_of_activations];
+          cluster_container[i] =  new cluster_element[nbr_of_activations]; 
+          for(int j=0; j < nbr_of_activations; j++){
+            cluster_container[i][j].items = new traccc::cell[nbr_of_activations]; // TODO: could also be set to `nbr_of_activations-j` to slightly reduce memory usage
+          }
         }
 
         /*
          * Execute the CCA algorithm
          */
         std::for_each_n(std::execution::par, counting_iterator(0), nbr_of_modules, [=](unsigned int i){
-          // prepare container to store results
-          cluster_element* cluster_container; // init in cc->operator()
-          measurement* measurement_collection; // init in mt->operator()
           unsigned int num_clusters = 0;
 
           auto module = data_header_array[i];
 
           // The algorithmic code part: start
-          cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container, num_clusters);
+          cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container[i], num_clusters);
 
-          mt->operator()(cluster_container, module, num_clusters, measurement_collection);
+          for(int j = 0; j < num_clusters; j++){
+            cluster_container[i][j].header.pixel = module.pixel;
+            cluster_container[i][j].header.placement = module.placement;
+          }
+
+          mt->operator()(cluster_container[i], module, num_clusters, output_items_array[i]);
           // The algorithmnic code part: end
 
           output_header_array[i] = module; // TODO: check if this is right, because we set placement and pixel to cluster container earlier
-          for(int j=0; j < num_clusters; j++){
-            output_items_array[i][j] = measurement_collection[j]; // TODO: might use a std::move
-          }
           output_num_measurments_array[i] = num_clusters;
         });
 

@@ -56,10 +56,8 @@ class component_connection_sparseccl
         detail::sparse_ccl(cells, connected_cells, number_of_cells,
                            num_clusters, cluster_sizes);
 
-        clusters = new cluster_element[num_clusters];
         for(int i = 0; i < num_clusters; i++){
-          // initialize the items arrays and store size information
-          clusters[i].items = new cell[cluster_sizes[i]];
+          clusters[i].header.pixel = module.pixel;
           clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]
         }
 

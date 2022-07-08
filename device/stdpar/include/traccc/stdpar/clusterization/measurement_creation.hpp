@@ -105,8 +105,6 @@ struct measurement_creation
         // Run the algorithm
         auto pitch = module.pixel.get_pitch();
 
-        measurements = new measurement[num_clusters];  
-
         for(int i=0; i < num_clusters; i++){
             scalar totalWeight = 0.;
 
