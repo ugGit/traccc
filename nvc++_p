@@ -28,7 +28,8 @@ NVCPP_DIRS=(
     "traccc_test_stdpar_fastsv.dir"
     "traccc_stdpar_fastsv_example"
     "traccc_stdpar_sparseccl_example"
-    "traccc_test_stdpar_sparseccl.dir")
+    "traccc_test_stdpar_sparseccl.dir"
+    "traccc_benchmark_stdpar_cca.dir")
 # Prepare compiler args for nvc++ or g++
 if is_any_in_args "${NVCPP_DIRS[@]}"; then
     echo ""; echo "******************************"

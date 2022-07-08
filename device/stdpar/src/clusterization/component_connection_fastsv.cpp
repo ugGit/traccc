@@ -29,7 +29,7 @@ using index_t = unsigned short;
  * because this algo does not control very fine grained the execution
  * pattern, and therefore, e.g. no graphs are created.
  */
-static constexpr std::size_t MIN_CELLS_PER_PARTITION = 2048;  
+static constexpr std::size_t MIN_CELLS_PER_PARTITION = 1024;  
 }  // namespace
 
 namespace traccc::stdpar {
@@ -552,20 +552,17 @@ void aggregate_clusters(const cell_container &cells,
 void fast_sv_kernel(
     const cell_container container, 
     const std::vector<details::ccl_partition> *partitions,
-    measurement_container* _out_ctnr) {
+    measurement_container* _out_ctnr,
+    const cc_algorithm selected_algorithm) {
   /*
    * If there is no partition, there is nothing to do for the kernel.
    */
   if(partitions->size() == 0) return;
-
   /*
    * Create a local data pointer to access the data in the array of the 
    * vector from within the parallel algorithm.
    */
   const details::ccl_partition *p = partitions->data();
-
-
-  auto start = std::chrono::high_resolution_clock::now();
 
   /*
    * Start running the work in different kernels using std par.
@@ -624,11 +621,20 @@ void fast_sv_kernel(
         f[j] = j;
         gf[j] = j;
     });
-
     /*
      * Now we move onto the actual processing part.
      */
-    details::fast_sv_2(f, gf, adjc, adjv, cells.size);
+    switch(selected_algorithm){
+      case cc_algorithm::simplified_sv:
+        details::simplified_sv(f, gf, adjc, adjv, cells.size);
+        break;
+      case cc_algorithm::fast_sv_1:
+        details::fast_sv_1(f, gf, adjc, adjv, cells.size);
+        break;
+      case cc_algorithm::fast_sv_2:
+        details::fast_sv_2(f, gf, adjc, adjv, cells.size);
+        break;
+    }
 
     /*
      * Count the number of clusters by checking how many nodes have
@@ -673,15 +679,6 @@ void fast_sv_kernel(
     delete[] f;
     delete[] gf;
   });
-
-
-  auto end = std::chrono::high_resolution_clock::now();
-
-  auto elapsed_seconds =
-    std::chrono::duration_cast<std::chrono::duration<double>>(
-      end - start);
-
-  printf("Kernel measurmnt: %.20f\n", elapsed_seconds);
 }
 
 /*
@@ -745,7 +742,9 @@ std::vector<details::ccl_partition> partition(
 }  // namespace details
 
 component_connection_fastsv::output_type component_connection_fastsv::operator()(
-    const cell_container_types::host& data) const {
+    const cell_container_types::host& data,
+    double* kernel_execution_duration,
+    cc_algorithm selected_algorithm) const {
     // TODO: replace with call to cell_container_types::host.size() once code is working
     /*
      * Calculate the total amount of cells to deal with.
@@ -813,9 +812,26 @@ component_connection_fastsv::output_type component_connection_fastsv::operator()
     mctnr->module_id = new geometry_id[total_cells];
 
     /*
+     * Start crono for benchmark measuring.
+     */
+    const auto start = std::chrono::high_resolution_clock::now();
+
+    /*
      * Run the connected component labeling algorithm to retrieve the clusters.
      */
-    fast_sv_kernel(container, &partitions, mctnr);
+    fast_sv_kernel(container, &partitions, mctnr, selected_algorithm);
+
+    /*
+     * Register elpased time as iteration duration in the benchmark state for this iteration.
+     */
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    if(kernel_execution_duration != nullptr){
+        auto elpased_time =
+          std::chrono::duration_cast<std::chrono::duration<double>>(
+            end - start);
+        *kernel_execution_duration = elpased_time.count();
+    }
 
     /*
      * Transform flat data structure to expected output format again.
