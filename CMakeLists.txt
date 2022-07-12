@@ -153,6 +153,9 @@ if( TRACCC_SETUP_GOOGLETEST )
    endif()
 endif()
 
+# TODO: this should be done only on demand
+add_subdirectory( extern/googlebenchmark )
+
 # option for algebra plugins (ARRAY EIGEN SMATRIX VC VECMEM)
 set(TRACCC_ALGEBRA_PLUGINS ARRAY CACHE STRING "Algebra plugin to use in the build")
 message(STATUS "Building with plugin type: " ${TRACCC_ALGEBRA_PLUGINS})
