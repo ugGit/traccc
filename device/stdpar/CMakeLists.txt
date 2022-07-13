@@ -33,8 +33,7 @@ traccc_add_library( ${LIB} stdpar TYPE SHARED
 target_link_libraries( ${LIB}
   PUBLIC traccc::core)
 
-set (STDPAR_TARGET "gpu")
-target_compile_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
-target_link_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
+target_link_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_compile_options(${LIB} PRIVATE -gpu=managed:intercept)
 target_link_options(${LIB} PRIVATE -gpu=managed:intercept)

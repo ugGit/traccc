@@ -13,8 +13,8 @@ traccc_add_executable( stdpar_sparseccl_example "stdpar_sparseccl.cpp"
 
 set (EXE_NAME "traccc_stdpar_sparseccl_example")
 set (STDPAR_TARGET "gpu")
-target_compile_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
-target_link_options(${EXE_NAME} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${EXE_NAME} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
+target_link_options(${EXE_NAME} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_compile_options(${EXE_NAME} PRIVATE -gpu=managed:intercept)
 target_link_options(${EXE_NAME} PRIVATE -gpu=managed:intercept)
 
@@ -26,7 +26,7 @@ traccc_add_executable( stdpar_fastsv_example "stdpar_fastsv.cpp"
 
 set (EXE_NAME2 "traccc_stdpar_fastsv_example")
 set (STDPAR_TARGET "gpu")
-target_compile_options(${EXE_NAME2} PRIVATE -stdpar=${STDPAR_TARGET})
-target_link_options(${EXE_NAME2} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${EXE_NAME2} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
+target_link_options(${EXE_NAME2} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_compile_options(${EXE_NAME2} PRIVATE -gpu=managed:intercept)
 target_link_options(${EXE_NAME2} PRIVATE -gpu=managed:intercept)

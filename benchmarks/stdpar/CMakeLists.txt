@@ -10,7 +10,7 @@ traccc_add_executable( benchmark_stdpar_cca "stdpar_cca.cpp"
                    traccc::stdpar benchmark::benchmark)
 
 set (LIB "traccc_benchmark_stdpar_cca")
-target_compile_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
-target_link_options(${LIB} PRIVATE -stdpar=${STDPAR_TARGET})
+target_compile_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
+target_link_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_compile_options(${LIB} PRIVATE -gpu=managed:intercept)
 target_link_options(${LIB} PRIVATE -gpu=managed:intercept)
