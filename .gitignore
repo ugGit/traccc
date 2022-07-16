@@ -6,6 +6,7 @@ localrc_gcc*
 *_bkp_*
 quickbuild
 load_modules
+/benchmark_results*
 
 # Prerequisites
 *.d

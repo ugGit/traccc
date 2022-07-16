@@ -1,0 +1,110 @@
+#!/bin/bash
+
+#
+# Script to execute the benchmarks automatically and store the files in a dedicated directory.
+#
+
+# Helper function for print outs
+print_verification_row(){
+  printf "%-15s %-8s %-14s\n" "$1" "$2" "$3"
+}
+print_sec_separator(){
+  echo -e "++++++++++++++++++++++++++++++++++++++++++\n"
+}
+print_subsec_separator(){
+  echo "------------------------------------------"
+}
+
+# Configuration
+BASE_DIR="/home/nwachuch/bld6/traccc"
+
+# Define location of data dir that will be used in benchmarks
+export TRACCC_TEST_DATA_DIR="$BASE_DIR/data"
+
+# Create directory to store results
+timemarker=$(date +"%Y_%m_%d_%H_%M")
+OUTPUT_DIR="./benchmark_results_$timemarker"
+# OUTPUT_DIR="./benchmark_results" #TODO to prevent creating endless many directories
+mkdir -p $OUTPUT_DIR
+
+# Helper function to execute benchmark always with same parameter for repetition etc.
+# Expects the suffix of the benchmark as argument.
+# Example usage: "execute_benchmark seq_cca" will execute the benchmark "traccc_benchmark_seq_cca"
+execute_benchmark(){
+  # Prepare command to execut
+  benchmark="$1" 
+  exe_cmd="$BASE_DIR/build/bin/traccc_benchmark_$benchmark \
+            --benchmark_repetitions=1 \
+            --benchmark_filter=0/man
+            --benchmark_display_aggregates_only=true \
+            --benchmark_out=$OUTPUT_DIR/$benchmark.json \
+            --benchmark_out_format=json"
+  
+  # Print context information
+  t1=$(date +"%s")
+  print_sec_separator
+  echo "Start Benchmark $benchmark at $(date -d @$t1)"
+  print_subsec_separator  
+
+  # Run the benchmark
+  echo -e "Executing Command: \n $exe_cmd"
+  print_subsec_separator
+  eval $exe_cmd
+  print_subsec_separator
+
+  # Print summary
+  t2=$(date +"%s")
+  echo "Finish Benchmark $benchmark at $(date -d @$t2)"
+  exe_time_seconds=$(($t2-$t1))
+  echo "Overall Execution time: $(($exe_time_seconds/60)) min $(($exe_time_seconds%60)) sec"
+  print_subsec_separator
+
+}
+
+# Define benchmarks that should be run
+BENCHMARKS=(
+  "stdpar_cca"
+  "cuda_cca"
+  #"random"
+)
+
+# Check that all executables exist
+print_sec_separator
+echo "Verify Executables"
+print_subsec_separator
+
+print_verification_row "Benchmark" "Exists" "Compilation Type"
+print_subsec_separator
+at_least_one_error=0 # will be set to 1 if a file does not exist or has been compiled for DEBUG
+for benchmark in "${BENCHMARKS[@]}"
+do
+  # Check for file existence
+  exe="$BASE_DIR/build/bin/traccc_benchmark_$benchmark"
+  if [ -f "$exe" ]; then
+    exists="YES"
+    # Check compilation type used (by looking at return value from grep, 0 if found an occurence, 1 if not)
+    objdump --syms $exe | grep -q "debug"
+    if [[ $? -eq 0 ]]; then
+      compiled="DEBUG"
+      at_least_one_error=1
+    else
+      compiled="RELASE"
+    fi
+  else
+    exists="NO"
+    compiled="NAN"
+    at_least_one_error=1
+  fi
+  print_verification_row "$benchmark" "$exists" "$compiled"
+done
+if [ at_least_one_error ]; then
+  print_subsec_separator
+  echo "Make sure that all executables exist and are compiled for release..."
+  exit 1
+fi
+
+# Run each benchmark
+for benchmark in "${BENCHMARKS[@]}"
+do
+  execute_benchmark "$benchmark"
+done
