@@ -17,18 +17,18 @@ namespace traccc::stdpar {
 
 /// Function used for retrieving the cell signal based on the module id
 inline scalar signal_cell_modelling(scalar signal_in,
-                                    const cluster_id& /*cl_id*/) {
+                                    const cell_module& /*cl_id*/) {
     return signal_in;
 }
 
 /// Function for pixel segmentation
-inline vector2 position_from_cell(cell c, cluster_id cl_id) {
+inline vector2 position_from_cell(cell c, cell_module cl_id) {
     // Retrieve the specific values based on module idx
     return {cl_id.pixel.min_center_x + c.channel0 * cl_id.pixel.pitch_x,
             cl_id.pixel.min_center_y + c.channel1 * cl_id.pixel.pitch_y};
 }
 
-inline vector2 get_pitch(cluster_id cl_id) {
+inline vector2 get_pitch(cell_module cl_id) {
     // return the values based on the module idx
     return {cl_id.pixel.pitch_x, cl_id.pixel.pitch_y};
 }
@@ -37,7 +37,7 @@ inline vector2 get_pitch(cluster_id cl_id) {
 /// measurement creation
 template <template <typename> class vector_type, typename cell_t>
 inline void calc_cluster_properties(
-    const vector_type<cell_t>& cluster, const cluster_id& cl_id, point2& mean,
+    const vector_type<cell_t>& cluster, const cell_module& cl_id, point2& mean,
     point2& var, scalar& totalWeight) {
     for (const auto& cell : cluster) {
         scalar weight = signal_cell_modelling(cell.activation, cl_id);

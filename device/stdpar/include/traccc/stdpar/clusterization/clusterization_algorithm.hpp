@@ -90,11 +90,6 @@ class clusterization_algorithm
           // The algorithmic code part: start
           cc->operator()(data_items_array[i], data_items_array_sizes[i], module, cluster_container[i], num_clusters);
 
-          for(int j = 0; j < num_clusters; j++){
-            cluster_container[i][j].header.pixel = module.pixel;
-            cluster_container[i][j].header.placement = module.placement;
-          }
-
           mt->operator()(cluster_container[i], module, num_clusters, output_items_array[i]);
           // The algorithmnic code part: end
 

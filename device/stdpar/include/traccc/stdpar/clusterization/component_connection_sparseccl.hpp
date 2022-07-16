@@ -47,7 +47,7 @@ class component_connection_sparseccl
     void operator()(const cell* cells,
                     unsigned int number_of_cells,
                     const cell_module& module,
-                    cluster_element*& clusters,
+                    cluster_element* clusters,
                     unsigned int& num_clusters) {
         // Run the algorithm
         unsigned int* cluster_sizes = new unsigned int[number_of_cells]{}; // initialize values at 0
@@ -57,7 +57,9 @@ class component_connection_sparseccl
                            num_clusters, cluster_sizes);
 
         for(int i = 0; i < num_clusters; i++){
-          clusters[i].header.pixel = module.pixel;
+          clusters[i].header.module = module.module;
+          clusters[i].header.placement = module.placement;
+          clusters[i].header.pixel = module.pixel;          
           clusters[i].items_size = 0; // use it as index when filling the items array later, will correspond at the end to cluster_sizes[i]
         }
 
