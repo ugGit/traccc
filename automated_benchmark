@@ -35,7 +35,6 @@ execute_benchmark(){
   benchmark="$1" 
   exe_cmd="$BASE_DIR/build/bin/traccc_benchmark_$benchmark \
             --benchmark_repetitions=1 \
-            --benchmark_filter=0/man
             --benchmark_display_aggregates_only=true \
             --benchmark_out=$OUTPUT_DIR/$benchmark.json \
             --benchmark_out_format=json"
@@ -82,14 +81,7 @@ do
   exe="$BASE_DIR/build/bin/traccc_benchmark_$benchmark"
   if [ -f "$exe" ]; then
     exists="YES"
-    # Check compilation type used (by looking at return value from grep, 0 if found an occurence, 1 if not)
-    objdump --syms $exe | grep -q "debug"
-    if [[ $? -eq 0 ]]; then
-      compiled="DEBUG"
-      at_least_one_error=1
-    else
-      compiled="RELASE"
-    fi
+    compiled="NAN" # the check for build type has been removed because not detectable with objdump --sysm
   else
     exists="NO"
     compiled="NAN"
