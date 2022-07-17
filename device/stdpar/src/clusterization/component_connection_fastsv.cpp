@@ -745,6 +745,11 @@ component_connection_fastsv::output_type component_connection_fastsv::operator()
     const cell_container_types::host& data,
     double* kernel_execution_duration,
     cc_algorithm selected_algorithm) const {
+
+    // increase the max heap size available to an individual thread
+    size_t new_size = 32 * 1024 * 1024; // = 32 MB // This value is currently set randomly high (somehow, one should be able to calculate the actual need)
+    cudaDeviceSetLimit(cudaLimitMallocHeapSize, new_size);
+
     // TODO: replace with call to cell_container_types::host.size() once code is working
     /*
      * Calculate the total amount of cells to deal with.
