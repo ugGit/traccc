@@ -31,12 +31,18 @@ mkdir -p $OUTPUT_DIR
 # Expects the suffix of the benchmark as argument.
 # Example usage: "execute_benchmark seq_cca" will execute the benchmark "traccc_benchmark_seq_cca"
 execute_benchmark(){
-  # Prepare command to execut
+  # Fetch arguments and setup parameters for command
   benchmark="$1" 
+  if [ -z "$2" ]; then
+    benchmark_output_name="$2"
+  else
+    benchmark_output_name="$benchmark"
+  fi
+  # Prepare command to execute
   exe_cmd="$BASE_DIR/build/bin/traccc_benchmark_$benchmark \
             --benchmark_repetitions=1 \
             --benchmark_display_aggregates_only=true \
-            --benchmark_out=$OUTPUT_DIR/$benchmark.json \
+            --benchmark_out=$OUTPUT_DIR/$benchmark_output_name.json \
             --benchmark_out_format=json"
   
   # Print context information
@@ -74,7 +80,6 @@ print_subsec_separator
 
 print_verification_row "Benchmark" "Exists" "Compilation Type"
 print_subsec_separator
-at_least_one_error=0 # will be set to 1 if a file does not exist or has been compiled for DEBUG
 for benchmark in "${BENCHMARKS[@]}"
 do
   # Check for file existence
@@ -89,7 +94,7 @@ do
   fi
   print_verification_row "$benchmark" "$exists" "$compiled"
 done
-if [ at_least_one_error ]; then
+if [[ $at_least_one_error -eq 1 ]]; then
   print_subsec_separator
   echo "Make sure that all executables exist and are compiled for release..."
   exit 1
@@ -100,3 +105,14 @@ for benchmark in "${BENCHMARKS[@]}"
 do
   execute_benchmark "$benchmark"
 done
+
+# Run the FastSV benchmarks on the GeForce 2080
+print_sec_separator
+echo "Run selcted benchmarks on the GeForce 2080"
+print_subsec_separator 
+export CUDA_VISIBLE_DEVICES=1
+echo "--> Set CUDA_VISIBLE_DEVICES=1"
+execute_benchmark "cuda_cca" "cuda_cca_geforce_2080" 
+execute_benchmark "stdpar_cca" "stdpar_cca_geforce_2080" 
+export CUDA_VISIBLE_DEVICES=0
+echo "--> Set CUDA_VISIBLE_DEVICES=0"
