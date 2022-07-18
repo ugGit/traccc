@@ -29,7 +29,8 @@ using index_t = unsigned short;
  * because this algo does not control very fine grained the execution
  * pattern, and therefore, e.g. no graphs are created.
  */
-static constexpr std::size_t MIN_CELLS_PER_PARTITION = 1024;  
+// Uncomment again once the cell size is fixed
+// static constexpr std::size_t MIN_CELLS_PER_PARTITION = 1024;
 }  // namespace
 
 namespace traccc::stdpar {
@@ -687,7 +688,7 @@ void fast_sv_kernel(
  * This implementation uses already the flattened data compared to the CUDA version.
  */
 std::vector<details::ccl_partition> partition(
-    channel_id *channel1, geometry_id *module_id, std::size_t n_cells) {
+    channel_id *channel1, geometry_id *module_id, std::size_t n_cells, std::size_t min_cells_per_partition) {
     std::vector<details::ccl_partition> partitions;
     std::size_t index = 0;
     std::size_t size = 0;
@@ -716,7 +717,7 @@ std::vector<details::ccl_partition> partition(
          * must have at least twice the size of threads per block. This 
          * guarantees that each thread handles later at least two cells.
          */
-        if ((channel1[i] > last_mid + 1 || module_id[i] != current_geometry) && size >= MIN_CELLS_PER_PARTITION) {
+        if ((channel1[i] > last_mid + 1 || module_id[i] != current_geometry) && size >= min_cells_per_partition) {
             partitions.push_back(
                 details::ccl_partition{.start = index, .size = size});
 
@@ -744,7 +745,8 @@ std::vector<details::ccl_partition> partition(
 component_connection_fastsv::output_type component_connection_fastsv::operator()(
     const cell_container_types::host& data,
     double* kernel_execution_duration,
-    cc_algorithm selected_algorithm) const {
+    cc_algorithm selected_algorithm,
+    std::size_t min_cells_per_partition) const {
 
     // increase the max heap size available to an individual thread
     size_t new_size = 32 * 1024 * 1024; // = 32 MB // This value is currently set randomly high (somehow, one should be able to calculate the actual need)
@@ -800,7 +802,7 @@ component_connection_fastsv::output_type component_connection_fastsv::operator()
      * Run the partitioning algorithm sequentially.
      */
     std::vector<details::ccl_partition> partitions = 
-      details::partition(container.channel1, container.module_id, container.size);
+      details::partition(container.channel1, container.module_id, container.size, min_cells_per_partition);
     
     /*
      * Reserve space for the result of the algorithm. Currently, there is 

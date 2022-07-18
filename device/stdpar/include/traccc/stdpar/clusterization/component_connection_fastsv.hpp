@@ -20,11 +20,12 @@ struct component_connection_fastsv : algorithm<measurement_container_types::host
                                   const cell_container_types::host& cells)> {
     // pass the benchmark state as nullptr to detect when none is passed, marks a non-breaking code extension
     output_type operator()(const cell_container_types::host& cells) const{
-      return this->operator()(cells, nullptr, cc_algorithm::simplified_sv);
+      return this->operator()(cells, nullptr, cc_algorithm::simplified_sv, 1024);
     };
     
     output_type operator()(const cell_container_types::host& cells, 
                            double* kernel_execution_duration,
-                           cc_algorithm selected_algorithm) const;
+                           cc_algorithm selected_algorithm,
+                           std::size_t min_cells_per_partition) const;
 };
 }  // namespace traccc::stdpar
