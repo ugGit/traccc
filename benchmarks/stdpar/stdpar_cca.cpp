@@ -27,24 +27,15 @@ auto stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm algo, std::size_t
  */
 BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_simplified_sv, 
                   stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm::simplified_sv, DEFAULT_MIN_CELLS_PER_PARTITION))
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_fast_sv_1, 
                   stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm::fast_sv_1, DEFAULT_MIN_CELLS_PER_PARTITION))
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_fast_sv_2, 
                   stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm::fast_sv_2, DEFAULT_MIN_CELLS_PER_PARTITION))
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 
 /*
@@ -57,23 +48,14 @@ BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_fast_sv_2,
  */
 BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_fast_sv_2_partition_128, 
                   stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm::fast_sv_2, 128))
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_fast_sv_2_partition_256, 
                   stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm::fast_sv_2, 256))
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 BENCHMARK_CAPTURE(BM_CCA, cca_stdpar_fast_sv_2_partition_512, 
                   stdpar_cca_wrapper_generator(traccc::stdpar::cc_algorithm::fast_sv_2, 512))
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 BENCHMARK_MAIN();

@@ -32,7 +32,12 @@ const std::vector<std::string> cell_directories = {
 };
 
 // generate a sequence from 0 to last index of test files
-static void parameter_space(benchmark::internal::Benchmark* b) {
+static void cca_benchmark_config(benchmark::internal::Benchmark* b) {
+  // meta-configure the benchmark
+  b->UseManualTime();
+  b->Unit(benchmark::kMillisecond);
+  // generate the arguments
+  b->ArgNames({"DatasetFileIndex"});
   for (unsigned int i = 0; i < cell_directories.size(); ++i){
     b->Arg(i);
   }

@@ -36,9 +36,6 @@ auto seq_cca_wrapper = [](traccc::cell_container_types::host &cells_per_event, d
 };
 
 BENCHMARK_CAPTURE(BM_CCA, seq_cca, seq_cca_wrapper)
-  ->Unit(benchmark::kMillisecond)
-  ->Apply(parameter_space)
-  ->ArgNames({"DatasetFileIndex"})
-  ->UseManualTime();
+  ->Apply(cca_benchmark_config);
 
 BENCHMARK_MAIN();
