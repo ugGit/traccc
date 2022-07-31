@@ -75,7 +75,7 @@ class clusterization_algorithm
           output_items_array[i] = new measurement[nbr_of_activations];
           cluster_container[i] =  new cluster_element[nbr_of_activations]; 
           for(int j=0; j < nbr_of_activations; j++){
-            cluster_container[i][j].items = new traccc::cell[nbr_of_activations]; // TODO: could also be set to `nbr_of_activations-j` to slightly reduce memory usage
+            cluster_container[i][j].items = new cell[nbr_of_activations]; // TODO: could also be set to `nbr_of_activations-j` to slightly reduce memory usage
           }
         }
 
@@ -93,7 +93,7 @@ class clusterization_algorithm
           mt->operator()(cluster_container[i], module, num_clusters, output_items_array[i]);
           // The algorithmnic code part: end
 
-          output_header_array[i] = module; // TODO: check if this is right, because we set placement and pixel to cluster container earlier
+          output_header_array[i] = module; 
           output_num_measurments_array[i] = num_clusters;
         });
 
