@@ -24,8 +24,8 @@ inline scalar signal_cell_modelling(scalar signal_in,
 /// Function for pixel segmentation
 inline vector2 position_from_cell(cell c, cell_module cl_id) {
     // Retrieve the specific values based on module idx
-    return {cl_id.pixel.min_center_x + c.channel0 * cl_id.pixel.pitch_x,
-            cl_id.pixel.min_center_y + c.channel1 * cl_id.pixel.pitch_y};
+    return {c.channel0,
+            c.channel1};
 }
 
 inline vector2 get_pitch(cell_module cl_id) {
@@ -37,9 +37,10 @@ inline vector2 get_pitch(cell_module cl_id) {
 /// measurement creation
 template <template <typename> class vector_type, typename cell_t>
 inline void calc_cluster_properties(
-    const vector_type<cell_t>& cluster, const cell_module& cl_id, point2& mean,
+    cell* cluster, unsigned int cluster_size, const cell_module& cl_id, point2& mean,
     point2& var, scalar& totalWeight) {
-    for (const auto& cell : cluster) {
+    for(int j=0; j < cluster_size; j++){
+        const auto& cell = cluster[j];
         scalar weight = signal_cell_modelling(cell.activation, cl_id);
         if (weight > cl_id.threshold) {
             totalWeight += cell.activation;
@@ -48,10 +49,9 @@ inline void calc_cluster_properties(
             const point2 diff = cell_position - prev;
 
             mean = prev + (weight / totalWeight) * diff;
-            for (std::size_t i = 0; i < 2; ++i) {
-                var[i] =
-                    var[i] + weight * (diff[i]) * (cell_position[i] - mean[i]);
-            }
+
+            var[0] = var[0] + weight * (diff[0]) * (cell_position[0] - mean[0]);
+            var[1] = var[1] + weight * (diff[1]) * (cell_position[1] - mean[1]);
         }
     }
 }
