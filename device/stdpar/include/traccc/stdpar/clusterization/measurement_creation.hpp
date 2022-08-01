@@ -25,10 +25,10 @@ inline scalar signal_cell_modelling(scalar signal_in,
 }
 
 /// Function for pixel segmentation
-inline vector2 position_from_cell(cell c, cell_module module) {
+inline vector2 position_from_cell(cell c, cell_module cl_id) {
     // Retrieve the specific values based on module idx
-    return {module.pixel.min_center_x + c.channel0 * module.pixel.pitch_x,
-            module.pixel.min_center_y + c.channel1 * module.pixel.pitch_y};
+    return {c.channel0,
+            c.channel1};
 }
 
 inline vector2 get_pitch(cell_module module) {
@@ -39,14 +39,14 @@ inline vector2 get_pitch(cell_module module) {
 /// Function used for calculating the properties of the cluster inside
 /// measurement creation
 inline void calc_cluster_properties(
-    cell* cluster, unsigned int cluster_size, const cell_module& module, point2& mean,
+    cell* cluster, unsigned int cluster_size, const cell_module& cl_id, point2& mean,
     point2& var, scalar& totalWeight) {
     for(int j=0; j < cluster_size; j++){
         const auto& cell = cluster[j];
-        scalar weight = signal_cell_modelling(cell.activation, module);
-        if (weight > module.threshold) {
+        scalar weight = signal_cell_modelling(cell.activation, cl_id);
+        if (weight > cl_id.threshold) {
             totalWeight += cell.activation;
-            const point2 cell_position = position_from_cell(cell, module);
+            const point2 cell_position = position_from_cell(cell, cl_id);
             const point2 prev = mean;
             const point2 diff = cell_position - prev;
 
