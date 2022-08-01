@@ -49,12 +49,23 @@ inline void calc_cluster_properties(
             const point2 cell_position = position_from_cell(cell, cl_id);
             const point2 prev = mean;
             const point2 diff = cell_position - prev;
+            double tmp = (double)weight/(double)totalWeight; // TODO: this fixes an error in division of floats
+            mean[0] = prev[0] + tmp * diff[0];
+            mean[1] = prev[1] + tmp * diff[1];
 
-            mean = prev + (weight / totalWeight) * diff;
-            for (std::size_t i = 0; i < 2; ++i) {
-                var[i] =
-                    var[i] + weight * (diff[i]) * (cell_position[i] - mean[i]);
-            }
+            var[0] = var[0] + weight * (diff[0]) * (cell_position[0] - mean[0]);
+            var[1] = var[1] + weight * (diff[1]) * (cell_position[1] - mean[1]);
+
+/*
+            printf("prev=[%f;%f];\n", prev[0], prev[1]);
+            printf("totalWeight=%f\n",totalWeight);
+            printf("weight=%f\n",weight);
+            printf("diff=[%f;%f];\n", diff[0], diff[1]);
+            printf("mean = prev + (weight / totalWeight) * diff;\n");
+            printf("mean=[%f;%f];\n", mean[0], mean[1]);
+
+            printf("var=[%f;%f]\n", var[0], var[1]);
+            */
         }
     }
 }
@@ -126,7 +137,7 @@ struct measurement_creation
 
             // Get the cluster id for this module
 
-            // Calculate the cluster properties        
+            // Calculate the cluster properties      
             calc_cluster_properties(clusters[i].items, clusters[i].items_size, module, mean,
                                                           var, totalWeight);
 
