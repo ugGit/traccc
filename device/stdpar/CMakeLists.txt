@@ -34,5 +34,3 @@ target_link_libraries( ${LIB}
 
 target_compile_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_link_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
-target_compile_options(${LIB} PRIVATE -gpu=managed:intercept)
-target_link_options(${LIB} PRIVATE -gpu=managed:intercept)

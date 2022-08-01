@@ -16,12 +16,8 @@ traccc_add_test( stdpar_sparseccl "test_cca_sparseccl.cpp"
 set (LIB "traccc_test_stdpar_fastsv")
 target_compile_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_link_options(${LIB} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
-target_compile_options(${LIB} PRIVATE -gpu=managed:intercept)
-target_link_options(${LIB} PRIVATE -gpu=managed:intercept)
 
 set (LIB2 "traccc_test_stdpar_sparseccl")
 target_compile_options(${LIB2} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
 target_link_options(${LIB2} PRIVATE ${TRACCC_STDPAR_BACKEND_FLAG})
-target_compile_options(${LIB2} PRIVATE -gpu=managed:intercept)
-target_link_options(${LIB2} PRIVATE -gpu=managed:intercept)
                   
