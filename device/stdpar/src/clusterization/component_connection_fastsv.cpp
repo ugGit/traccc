@@ -21,6 +21,9 @@
 
 #include <chrono>
 
+// Use distinctive value for gpu macro (name is same as for specification of TRACCC_STDPAR_BACKEND)
+#define gpu -14222
+
 // define local constant values
 namespace {
 using index_t = unsigned short;
@@ -748,9 +751,11 @@ component_connection_fastsv::output_type component_connection_fastsv::operator()
     cc_algorithm selected_algorithm,
     std::size_t min_cells_per_partition) const {
 
-    // increase the max heap size available to an individual thread
-    size_t new_size = 32 * 1024 * 1024; // = 32 MB // This value is currently set randomly high (somehow, one should be able to calculate the actual need)
-    cudaDeviceSetLimit(cudaLimitMallocHeapSize, new_size);
+    #if TRACCC_STDPAR_BACKEND == gpu
+      // increase the max heap size available to an individual thread
+      size_t new_size = 32 * 1024 * 1024; // = 32 MB // This value is currently set randomly high (somehow, one should be able to calculate the actual need)
+      cudaDeviceSetLimit(cudaLimitMallocHeapSize, new_size);
+    #endif
 
     // TODO: replace with call to cell_container_types::host.size() once code is working
     /*
