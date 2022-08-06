@@ -682,6 +682,7 @@ void fast_sv_kernel(
     delete[] adjc;
     delete[] f;
     delete[] gf;
+    delete out;
   });
 }
 
@@ -866,6 +867,14 @@ component_connection_fastsv::output_type component_connection_fastsv::operator()
 
         out.push_back(cell_module(data.at(i).header), std::move(v));
     }
+
+    // free up memory
+    delete[] mctnr->channel0;
+    delete[] mctnr->channel1;
+    delete[] mctnr->variance0;
+    delete[] mctnr->variance1;
+    delete[] mctnr->module_id;
+    delete mctnr;
 
     return out;
 }
