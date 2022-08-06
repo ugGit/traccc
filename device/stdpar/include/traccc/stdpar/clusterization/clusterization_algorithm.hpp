@@ -22,6 +22,7 @@
 #include "traccc/stdpar/clusterization/test.hpp"
 
 #include <iostream>
+#include <chrono>
 
 namespace traccc::stdpar {
 
@@ -39,9 +40,16 @@ class clusterization_algorithm
             traccc::stdpar::measurement_creation(mr));
     }
 
+    // pass the timer as nullptr to detect when none is passed, marks a non-breaking code extension
     output_type operator()(
         const cell_container_types::host& cells_per_event) const override {
+        
+        return this->operator()(cells_per_event, nullptr);
+    }
 
+    output_type operator()(
+        const cell_container_types::host& cells_per_event,
+        double* kernel_execution_duration) const {
         // start data transformation
         unsigned int nbr_of_modules = cells_per_event.size();
         cell_module* data_header_array = new cell_module[nbr_of_modules];
@@ -80,6 +88,11 @@ class clusterization_algorithm
         }
 
         /*
+         * Start crono for benchmark measuring.
+         */
+        const auto start = std::chrono::high_resolution_clock::now();
+
+        /*
          * Execute the CCA algorithm
          */
         std::for_each_n(std::execution::par, counting_iterator(0), nbr_of_modules, [=](unsigned int i){
@@ -96,6 +109,18 @@ class clusterization_algorithm
           output_header_array[i] = module; 
           output_num_measurments_array[i] = num_clusters;
         });
+
+        /*
+         * Register elpased time as iteration duration in the benchmark state for this iteration.
+         */
+        const auto end = std::chrono::high_resolution_clock::now();
+
+        if(kernel_execution_duration != nullptr){
+          auto elpased_time =
+            std::chrono::duration_cast<std::chrono::duration<double>>(
+              end - start);
+          *kernel_execution_duration = elpased_time.count();
+        }
 
         /*
          * Convert data back to expected traccc EDM format
