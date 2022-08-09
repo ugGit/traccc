@@ -111,6 +111,22 @@ class clusterization_algorithm
         });
 
         /*
+         * Clean up data that is not further used
+         */
+        for(int i = 0; i < nbr_of_modules; i++){
+          const unsigned int nbr_of_activations = cells_per_event.at(i).items.size();
+          for(int j = 0; j < nbr_of_activations; j++){
+            delete[] cluster_container[i][j].items;
+          }
+          delete[] cluster_container[i];
+          delete[] data_items_array[i];
+        }
+        delete[] cluster_container;
+        delete[] data_header_array;
+        delete[] data_items_array_sizes;
+        delete[] data_items_array;
+        
+        /*
          * Register elpased time as iteration duration in the benchmark state for this iteration.
          */
         const auto end = std::chrono::high_resolution_clock::now();
