@@ -28,7 +28,7 @@ const std::vector<std::string> cell_directories = {
   "tml_full/ttbar_mu100/",
   "tml_full/ttbar_mu200/",
   "tml_full/ttbar_mu300/",
-  "tml_pixels/",
+  // "tml_pixels/",
 };
 
 // generate a sequence from 0 to last index of test files

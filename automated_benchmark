@@ -33,19 +33,13 @@ mkdir -p $OUTPUT_DIR
 execute_benchmark(){
   # Fetch arguments and setup parameters for command
   benchmark="$1" 
-  if [ -z "$2" ]; then
-    benchmark_output_name="$2"
-  else
-    benchmark_output_name="$benchmark"
-  fi
-  if [ -z "$3" ]; then
-    filter="--benchmark_filter=$3"
-  fi
+  benchmark_output_name="$2"
+  filter="--benchmark_filter=$3"
   # Prepare command to execute
   exe_cmd="$BASE_DIR/build/bin/traccc_benchmark_$benchmark \
             --benchmark_repetitions=1 \
             --benchmark_display_aggregates_only=true \
-            --benchmark_out=$OUTPUT_DIR/$benchmark_output_name.json \
+            --benchmark_out=$OUTPUT_DIR/${benchmark_output_name}.json \
             --benchmark_out_format=json \
             $filter"
   
@@ -67,14 +61,13 @@ execute_benchmark(){
   exe_time_seconds=$(($t2-$t1))
   echo "Overall Execution time: $(($exe_time_seconds/60)) min $(($exe_time_seconds%60)) sec"
   print_subsec_separator
-
 }
 
 # Define benchmarks that should be run
 BENCHMARKS=(
-  "stdpar_cca"
   "cuda_cca"
-  #"random"
+  "seq_cca"
+  "stdpar_cca"
 )
 
 # Check that all executables exist
@@ -107,16 +100,16 @@ fi
 # Run each benchmark
 for benchmark in "${BENCHMARKS[@]}"
 do
-  execute_benchmark "$benchmark"
+  execute_benchmark "$benchmark" "$benchmark"
 done
 
-# Run the FastSV benchmarks on the GeForce 2080
 print_sec_separator
 echo "Run selcted benchmarks on the GeForce 2080"
 print_subsec_separator 
 export CUDA_VISIBLE_DEVICES=1
 echo "--> Set CUDA_VISIBLE_DEVICES=1"
 execute_benchmark "cuda_cca" "cuda_cca_geforce_2080" "fast_sv_2/"
-execute_benchmark "stdpar_cca" "stdpar_cca_geforce_2080" 
+execute_benchmark "stdpar_cca" "stdpar_cca_fast_sv_2_geforce_2080" "fast_sv_2/"
+execute_benchmark "stdpar_cca" "stdpar_cca_simplified_sv_geforce_2080" "fast_sv_2/"
 export CUDA_VISIBLE_DEVICES=0
 echo "--> Set CUDA_VISIBLE_DEVICES=0"
