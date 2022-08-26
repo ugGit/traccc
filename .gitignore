@@ -1,3 +1,13 @@
+# Ignores for local dev
+/.vscode
+/build/
+/run
+localrc_gcc*
+*_bkp_*
+quickbuild
+load_modules
+/benchmark_results*
+
 # Prerequisites
 *.d
 

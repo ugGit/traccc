@@ -10,6 +10,8 @@ include( traccc-compiler-options-cpp )
 # Add all the subdirectories that can be built.
 add_subdirectory(cpu)
 
+add_subdirectory(stdpar)
+
 if (TRACCC_BUILD_CUDA)
   add_subdirectory(cuda)
 endif()

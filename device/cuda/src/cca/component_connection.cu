@@ -16,6 +16,8 @@
 #include "vecmem/memory/binary_page_memory_resource.hpp"
 #include "vecmem/memory/cuda/managed_memory_resource.hpp"
 
+#include <chrono>
+
 namespace {
 static constexpr std::size_t MAX_CELLS_PER_PARTITION = 2048;
 static constexpr std::size_t THREADS_PER_BLOCK = 256;
@@ -518,7 +520,7 @@ __device__ void aggregate_clusters(const cell_container& cells,
 
 __global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
     const cell_container container, const ccl_partition* partitions,
-    measurement_container& _out_ctnr) {
+    measurement_container& _out_ctnr, const cc_algorithm selected_algorithm) {
     const ccl_partition& partition = partitions[blockIdx.x];
 
     /*
@@ -608,7 +610,17 @@ __global__ __launch_bounds__(THREADS_PER_BLOCK) void ccl_kernel(
      */
     __syncthreads();
 
-    fast_sv_1(f, f_next, adjc, adjv, cells.size);
+    switch(selected_algorithm){
+      case cc_algorithm::simplified_sv:
+        simplified_sv(f, f_next, adjc, adjv, cells.size);
+        break;
+      case cc_algorithm::fast_sv_1:
+        fast_sv_1(f, f_next, adjc, adjv, cells.size);
+        break;
+      case cc_algorithm::fast_sv_2:
+        fast_sv_2(f, f_next, adjc, adjv, cells.size);
+        break;
+    }
 
     /*
      * This variable will be used to write to the output later.
@@ -728,7 +740,9 @@ vecmem::vector<details::ccl_partition> partition(
 }  // namespace details
 
 component_connection::output_type component_connection::operator()(
-    const cell_container_types::host& data) const {
+    const cell_container_types::host& data, 
+    double* kernel_execution_duration,
+    const cc_algorithm selected_algorithm) const {
     vecmem::cuda::managed_memory_resource upstream;
     vecmem::binary_page_memory_resource mem(upstream);
 
@@ -808,14 +822,31 @@ component_connection::output_type component_connection::operator()(
         alloc.allocate_bytes(total_cells * sizeof(geometry_id)));
 
     /*
+     * Start crono for benchmark measuring.
+     */
+    const auto start = std::chrono::high_resolution_clock::now();
+
+    /*
      * Run the connected component labeling algorithm to retrieve the clusters.
      *
      * This step includes the measurement (hit) creation for each cluster.
      */
     ccl_kernel<<<partitions.size(), THREADS_PER_BLOCK>>>(
-        container, partitions.data(), *mctnr);
+        container, partitions.data(), *mctnr, selected_algorithm);
 
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
+
+    /*
+     * Register elpased time as iteration duration in the benchmark state for this iteration.
+     */
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    if(kernel_execution_duration != nullptr){
+        auto elpased_time =
+          std::chrono::duration_cast<std::chrono::duration<double>>(
+            end - start);
+        *kernel_execution_duration = elpased_time.count();
+    }
 
     /*
      * Copy back the data from our flattened data structure into the traccc EDM.

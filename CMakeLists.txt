@@ -153,6 +153,22 @@ if( TRACCC_SETUP_GOOGLETEST )
    endif()
 endif()
 
+# TODO: This should be done only on demand
+add_subdirectory( extern/googlebenchmark )
+
+set( TRACCC_STDPAR_BACKEND "gpu" CACHE STRING 
+"Define the backend to use for C++ Parallel Algorithms (gpu|multicore|none)")
+# Setup the flag for stdpar compilation based on selected backend
+if(${TRACCC_STDPAR_BACKEND} MATCHES "gpu")
+  set( TRACCC_STDPAR_BACKEND_FLAG "-stdpar=gpu")
+elseif(${TRACCC_STDPAR_BACKEND} MATCHES "multicore")
+  set( TRACCC_STDPAR_BACKEND_FLAG "-stdpar=multicore")
+elseif(${TRACCC_STDPAR_BACKEND} MATCHES "none")
+  set( TRACCC_STDPAR_BACKEND_FLAG "-nostdpar")
+else()
+  message(FATAL_ERROR "The backend for C++ Parallel Algorithms is unkown. Choose one of the following values: gpu|multicore|none")
+endif()
+
 # option for algebra plugins (ARRAY EIGEN SMATRIX VC VECMEM)
 set(TRACCC_ALGEBRA_PLUGINS ARRAY CACHE STRING "Algebra plugin to use in the build")
 message(STATUS "Building with plugin type: " ${TRACCC_ALGEBRA_PLUGINS})
@@ -161,6 +177,7 @@ add_definitions(-DALGEBRA_PLUGINS_INCLUDE_${TRACCC_ALGEBRA_PLUGINS})
 # Build the traccc code.
 add_subdirectory( core )
 add_subdirectory( device/common )
+add_subdirectory( device/stdpar ) # TODO: make optional
 if( TRACCC_BUILD_CUDA )
    add_subdirectory( device/cuda )
 endif()
@@ -183,3 +200,6 @@ include( CTest )
 if( BUILD_TESTING AND TRACCC_BUILD_TESTING )
    add_subdirectory( tests )
 endif()
+
+
+add_subdirectory( benchmarks )
